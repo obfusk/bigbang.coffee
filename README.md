@@ -55,7 +55,7 @@ with examples.
 ## License
 []: {{{1
 
-  GPLv2 [1] or EPLv1 [2].
+  GPLv2 [1] or GPLv3 [2] or LGPLv3 [3] or EPLv1 [4].
 
 []: }}}1
 
@@ -65,7 +65,13 @@ with examples.
   [1] GNU General Public License, version 2
   --- http://www.opensource.org/licenses/GPL-2.0
 
-  [2] Eclipse Public License, version 1
+  [2] GNU General Public License, version 3
+  --- http://www.opensource.org/licenses/GPL-3.0
+
+  [3] GNU Lesser General Public License, version 3
+  --- http://www.opensource.org/licenses/LGPL-3.0
+
+  [4] Eclipse Public License, version 1
   --- http://www.opensource.org/licenses/EPL-1.0
 
 []: }}}1
