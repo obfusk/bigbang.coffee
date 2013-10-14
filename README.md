@@ -46,8 +46,9 @@ with examples.
 []: {{{1
 
   * build!
+  * fps?!
   * examples!
-  * more specs/docs?
+  * specs/docs?
   * ...
 
 []: }}}1
