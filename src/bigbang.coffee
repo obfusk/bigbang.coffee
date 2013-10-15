@@ -28,7 +28,12 @@ if exports? then module.exports = B else this.bigbang = B
 
 polyRequestAnimationFrame = (delay = 17) ->
     console.warn 'polyfilling *RequestAnimationFrame ...'
-    (cb) -> window.setTimeout (-> cb +new Date), delay
+    last = 0
+    (cb) ->
+      cur   = +new Date
+      dt    = Math.max 0, delay - (cur - last)
+      last  = cur + dt
+      window.setTimeout (-> cb +new Date), dt
 
 # NB: using prefixed versions of requestAnimationFrame only b/c
 # requestAnimationFrame itself uses relative timestamps; also:
