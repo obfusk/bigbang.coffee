@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>bigbang.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>bigbang.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <!-- {{{1 -->
+
+<pre><code>File        : bigbang.coffee
+Maintainer  : Felix C. Stegerman &lt;flx@obfusk.net&gt;
+Date        : 2013-10-15
+
+Copyright   : Copyright (C) 2013  Felix C. Stegerman
+Licence     : GPLv2 or GPLv3 or LGPLv3 or EPLv1</code></pre>
+<!-- }}}1 -->
+
+<p>...</p>
+<p><a href="https://github.com/obfusk/bigbang.coffee">https://github.com/obfusk/bigbang.coffee</a></p>
+<p>Licence: GPLv2 or GPLv3 or LGPLv3 or EPLv1.</p>
+<h2>underscore + exports</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>U = <span class="keyword">this</span>._ || require <span class="string">'underscore'</span>
+<span class="function"><span class="title">B</span></span> = -&gt; B._call arguments...
+<span class="keyword">if</span> exports? <span class="keyword">then</span> module.exports = B <span class="keyword">else</span> <span class="keyword">this</span>.bigbang = B</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <h2>requestAnimationFrame / polyfill</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="title">polyRequestAnimationFrame</span></span> = (delay = <span class="number">17</span>) -&gt;                     <span class="comment"># {{{1</span>
+    console.warn <span class="string">'polyfilling *RequestAnimationFrame ...'</span>
+    last = <span class="number">0</span>
+    (cb) -&gt;
+      cur   = +<span class="keyword">new</span> Date
+      dt    = Math.max <span class="number">0</span>, delay - (cur - last)
+      last  = cur + dt
+      window.setTimeout (-&gt; cb +<span class="keyword">new</span> Date), dt</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>}}}1</p>
+<p>NB: using prefixed versions of requestAnimationFrame only b/c
+requestAnimationFrame itself uses relative timestamps; also:
+webkitRequestAnimationFrame seems to pass floating point timestamps.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>B.requestAnimationFrame = anim =
+  window?.webkitRequestAnimationFrame ||
+  window?.mozRequestAnimationFrame ||
+  polyRequestAnimationFrame()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <h2>main function + stop_with</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>B._call = <span class="function"><span class="title">_call</span></span> = (opts) -&gt;                                     <span class="comment"># {{{1</span>
+  world   = opts.world; fps = opts.fps
+  done    = opts.stop_when?(world) || <span class="literal">false</span>
+  last    = +<span class="keyword">new</span> Date
+  changed = <span class="literal">false</span>
+
+  draw = () -&gt;
+    f = <span class="keyword">if</span> done &amp;&amp; opts.on_stop <span class="keyword">then</span> opts.on_stop <span class="keyword">else</span> opts.on_draw
+    f(world)(opts.canvas)
+
+  <span class="function"><span class="title">change</span></span> = (x) -&gt;
+    <span class="keyword">if</span> x <span class="keyword">instanceof</span> Stop
+      world = x.world
+      done  = <span class="literal">true</span>
+    <span class="keyword">else</span>
+      world = x
+      done  = <span class="literal">true</span> <span class="keyword">if</span> opts.stop_when? world
+    cancel_keys?() <span class="keyword">if</span> done
+    changed = <span class="literal">true</span>
+
+  <span class="function"><span class="title">key</span></span> = (k) -&gt;
+    change opts.on_key(world, k) <span class="keyword">if</span> opts.on_key
+
+  <span class="function"><span class="title">tick</span></span> = (t) -&gt;
+    <span class="keyword">if</span> t - last &gt; <span class="number">1000</span>/opts.fps
+      last = t
+      change opts.on_tick(world) <span class="keyword">if</span> opts.on_tick
+    <span class="keyword">if</span> changed
+      draw()
+      changed = <span class="literal">false</span>
+    anim tick <span class="keyword">unless</span> done
+
+  cancel_keys = _handle_keys opts, key
+  anim tick</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>}}}1</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>B._handle_keys = <span class="function"><span class="title">_handle_keys</span></span> = (opts, f) -&gt;                    <span class="comment"># {{{1</span>
+  $ = opts.$ || window.$
+  <span class="function"><span class="title">h</span></span> = (e) -&gt;
+    <span class="keyword">if</span> !e.altKey &amp;&amp; !e.ctrlKey &amp;&amp; !e.metaKey &amp;&amp;
+        e.which != keycodes.SHIFT
+      k = _get_key e.which, e.shiftKey; f k <span class="keyword">if</span> k
+      k == <span class="literal">null</span>
+    <span class="keyword">else</span>
+      <span class="literal">true</span>
+  $(opts.canvas).<span class="literal">on</span> <span class="string">'keydown'</span>, h
+  -&gt; $(opts.canvas).<span class="literal">off</span> <span class="string">'keydown'</span>, h</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>}}}1</p>
+<p>a-z, A-Z, 0-9, SHIFT_0..SHIFT_9, backspace..up, BACKSPACE..UP</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>B._get_key = <span class="function"><span class="title">_get_key</span></span> = (w, s) -&gt;                               <span class="comment"># {{{1</span>
+  <span class="keyword">switch</span>
+    <span class="keyword">when</span> keycodes.ALPHA.from &lt;= w &amp;&amp; w &lt;= keycodes.ALPHA.to
+      c = String.fromCharCode w
+      <span class="keyword">if</span> s <span class="keyword">then</span> c <span class="keyword">else</span> c.toLowerCase()
+    <span class="keyword">when</span> keycodes.NUM.from &lt;= w &amp;&amp; w &lt;= keycodes.NUM.to
+      c = String.fromCharCode w
+      <span class="keyword">if</span> s <span class="keyword">then</span> <span class="string">"SHIFT_<span class="subst">#{c}</span>"</span> <span class="keyword">else</span> c
+    <span class="keyword">else</span>
+      <span class="keyword">for</span> k, v <span class="keyword">of</span> keycodes
+        <span class="keyword">if</span> v == w
+          <span class="keyword">return</span> <span class="keyword">if</span> s <span class="keyword">then</span> k <span class="keyword">else</span> k.toLowerCase()
+      <span class="literal">null</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>}}}1</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>B.keycodes = keycodes =
+ BACKSPACE: <span class="number">8</span>, COMMA: <span class="number">188</span>, DELETE: <span class="number">46</span>, DOWN: <span class="number">40</span>, END: <span class="number">35</span>, ENTER: <span class="number">13</span>,
+ ESCAPE: <span class="number">27</span>, HOME: <span class="number">36</span>, LEFT: <span class="number">37</span>, PAGE_DOWN: <span class="number">34</span>, PAGE_UP: <span class="number">33</span>,
+ PERIOD: <span class="number">190</span>, RIGHT: <span class="number">39</span>, SHIFT: <span class="number">16</span>, SPACE: <span class="number">32</span>, TAB: <span class="number">9</span>, UP: <span class="number">38</span>,
+ ALPHA: { from: <span class="number">65</span>, to: <span class="number">90</span> }, NUM: { from: <span class="number">48</span>, to: <span class="number">57</span> }, <span class="comment"># ...</span>
+
+B.stop_with = <span class="function"><span class="title">stop_with</span></span> = (w) -&gt; <span class="keyword">new</span> Stop w
+
+<span class="class"><span class="keyword">class</span> <span class="title">Stop</span></span>
+  constructor: (<span class="property">@world</span>) -&gt;
+B.Stop = Stop</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <h2>image functions</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>empty scene</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>B.empty_scene = <span class="function"><span class="title">empty_scene</span></span> = (width, height) -&gt; (canvas) -&gt;
+  canvas.width = width; canvas.height = height</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>string with center at coordinates</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>B.place_text = place_text =                                     <span class="comment"># {{{1</span>
+  (string, x, y, fontsize, colour, scene, $ = window.$) -&gt; (canvas) -&gt;
+    scene canvas
+    ctx = canvas.getContext <span class="string">'2d'</span>
+    ctx.save()
+    ctx.font          = <span class="string">"<span class="subst">#{fontsize}</span> sans-serif"</span>
+    ctx.fillStyle     = colour
+    ctx.textBaseline  = <span class="string">'bottom'</span>
+    [w,h]             = measureText $, string, fontsize, <span class="string">'sans-serif'</span>
+    ctx.fillText string, Math.round(x - w<span class="regexp">/2), Math.round(y + h/</span><span class="number">2</span>)
+    ctx.restore()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>}}}1</p>
+<p>image with center at coordinates</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>B.place_image = <span class="function"><span class="title">place_image</span></span> = (image, x, y, scene) -&gt; (canvas) -&gt;
+  scene canvas
+  ctx = canvas.getContext <span class="string">'2d'</span>
+  x_  = x - Math.round(image.width  / <span class="number">2</span>)
+  y_  = y - Math.round(image.height / <span class="number">2</span>)
+  ctx.drawImage image, x_, y_</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <h2>miscellaneous functions</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>B.measureText = <span class="function"><span class="title">measureText</span></span> = ($, text, size, family) -&gt;        <span class="comment"># {{{1</span>
+  c = measureText.cache[<span class="string">"<span class="subst">#{size}</span>|<span class="subst">#{family}</span>|<span class="subst">#{text}</span>"</span>]
+  <span class="keyword">return</span> c <span class="keyword">if</span> c
+  d = $ <span class="string">'&lt;div&gt;'</span>; d.text text
+  d.css display: <span class="string">'none'</span>, <span class="string">'font-size'</span>: size, <span class="string">'font-family'</span>: family
+  $(<span class="string">'body'</span>).append d
+  w = d.width(); h = d.height()
+  d.remove()
+  measureText.cache[<span class="string">"<span class="subst">#{size}</span>|<span class="subst">#{family}</span>|<span class="subst">#{text}</span>"</span>] = [w,h]
+measureText.cache = {}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>}}}1</p>
+<!-- vim: set tw=70 sw=2 sts=2 et fdm=marker : -->
+
+
+            </div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
