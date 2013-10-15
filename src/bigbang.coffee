@@ -38,7 +38,7 @@ polyRequestAnimationFrame = (delay = 17) ->                     # {{{1
       dt    = Math.max 0, delay - (cur - last)
       last  = cur + dt
       window.setTimeout (-> cb +new Date), dt
-                                                                # }}}1
+                                                      #  <!-- }}}1 -->
 
 # NB: using prefixed versions of requestAnimationFrame only b/c
 # requestAnimationFrame itself uses relative timestamps; also:
@@ -86,7 +86,7 @@ B._call = _call = (opts) ->                                     # {{{1
 
   cancel_keys = _handle_keys opts, key
   anim tick
-                                                                # }}}1
+                                                      #  <!-- }}}1 -->
 
 B._handle_keys = _handle_keys = (opts, f) ->                    # {{{1
   $ = opts.$ || window.$
@@ -99,7 +99,7 @@ B._handle_keys = _handle_keys = (opts, f) ->                    # {{{1
       true
   $(opts.canvas).on 'keydown', h
   -> $(opts.canvas).off 'keydown', h
-                                                                # }}}1
+                                                      #  <!-- }}}1 -->
 
 # a-z, A-Z, 0-9, SHIFT_0..SHIFT_9, backspace..up, BACKSPACE..UP
 B._get_key = _get_key = (w, s) ->                               # {{{1
@@ -115,7 +115,7 @@ B._get_key = _get_key = (w, s) ->                               # {{{1
         if v == w
           return if s then k else k.toLowerCase()
       null
-                                                                # }}}1
+                                                      #  <!-- }}}1 -->
 
 B.keycodes = keycodes =
  BACKSPACE: 8, COMMA: 188, DELETE: 46, DOWN: 40, END: 35, ENTER: 13,
@@ -149,7 +149,7 @@ B.place_text = place_text =                                     # {{{1
     [w,h]             = measureText $, string, fontsize, 'sans-serif'
     ctx.fillText string, Math.round(x - w/2), Math.round(y + h/2)
     ctx.restore()
-                                                                # }}}1
+                                                      #  <!-- }}}1 -->
 
 # image with center at coordinates
 B.place_image = place_image = (image, x, y, scene) -> (canvas) ->
@@ -173,6 +173,6 @@ B.measureText = measureText = ($, text, size, family) ->        # {{{1
   d.remove()
   measureText.cache["#{size}|#{family}|#{text}"] = [w,h]
 measureText.cache = {}
-                                                                # }}}1
+                                                      #  <!-- }}}1 -->
 
 # <!-- vim: set tw=70 sw=2 sts=2 et fdm=marker : -->
