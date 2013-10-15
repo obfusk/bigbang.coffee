@@ -49,9 +49,10 @@ B.requestAnimationFrame = anim =
 # -----------
 
 B._call = _call = (opts) ->                                     # {{{1
-  world = opts.world; fps = opts.fps
-  done  = opts.stop_when?(world) || false
-  last  = +new Date
+  world   = opts.world; fps = opts.fps
+  done    = opts.stop_when?(world) || false
+  last    = +new Date
+  changed = false
 
   draw = () ->
     f = if done && opts.on_stop then opts.on_stop else opts.on_draw
@@ -64,7 +65,8 @@ B._call = _call = (opts) ->                                     # {{{1
     else
       world = x
       done  = true if opts.stop_when? world
-    draw()
+    cancel_keys?() if done
+    changed = true
 
   key = (k) ->
     change opts.on_key(world, k) if opts.on_key
@@ -73,21 +75,26 @@ B._call = _call = (opts) ->                                     # {{{1
     if t - last > 1000/opts.fps
       last = t
       change opts.on_tick(world) if opts.on_tick
+    if changed
+      draw()
+      changed = false
     anim tick unless done
 
-  _handle_keys opts, key
+  cancel_keys = _handle_keys opts, key
   anim tick
                                                                 # }}}1
 
 B._handle_keys = _handle_keys = (opts, f) ->                    # {{{1
   $ = opts.$ || window.$
-  $(opts.canvas).keydown (e) ->
+  h = (e) ->
     if !e.altKey && !e.ctrlKey && !e.metaKey &&
         e.which != keycodes.SHIFT
       k = _get_key e.which, e.shiftKey; f k if k
       k == null
     else
       true
+  $(opts.canvas).on 'keydown', h
+  -> $(opts.canvas).off 'keydown', h
                                                                 # }}}1
 
 # a-z, A-Z, 0-9, SHIFT_0..SHIFT_9, backspace..up, BACKSPACE..UP
