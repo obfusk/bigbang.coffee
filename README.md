@@ -2,7 +2,7 @@
 
     File        : README.md
     Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-    Date        : 2013-10-14
+    Date        : 2013-10-15
 
     Copyright   : Copyright (C) 2013  Felix C. Stegerman
     Version     : v0.0.1-SNAPSHOT
@@ -12,7 +12,7 @@
 ## Description
 []: {{{1
 
-  bigbang.coffee - graphical functional programming for coffeescript
+  bigbang.coffee - graphical functional programming for js/coffee
 
   Create graphical programs (like games) in coffeescript or javascript
   using plain mathematical functions; inspired by the 2htdp library

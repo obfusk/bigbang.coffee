@@ -9,11 +9,15 @@
 #
 # <!-- }}}1 -->
 
-# ...
+# graphical functional programming for js/coffee
+#
+# Create graphical programs (like games) in coffeescript or javascript
+# using plain mathematical functions; inspired by the 2htdp library
+# for racket.
 #
 # https://github.com/obfusk/bigbang.coffee
 #
-# Licence: GPLv2 or GPLv3 or LGPLv3 or EPLv1.
+# License: GPLv2 or GPLv3 or LGPLv3 or EPLv1.
 
 # underscore + exports
 # ---------------------------
