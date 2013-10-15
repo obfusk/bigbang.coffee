@@ -12,9 +12,11 @@
 ## Description
 []: {{{1
 
-  bigbang.coffee - ...
+  bigbang.coffee - graphical functional programming for coffeescript
 
-  ...
+  Create graphical programs (like games) in coffeescript or javascript
+  using plain mathematical functions; inspired by the 2htdp library
+  for racket.
 
 []: }}}1
 
@@ -45,10 +47,9 @@ with examples.
 ## TODO
 []: {{{1
 
-  * build!
-  * fps?!
+  * more image manipulation functions!
   * examples!
-  * specs/docs?
+  * specs/docs!
   * ...
 
 []: }}}1
