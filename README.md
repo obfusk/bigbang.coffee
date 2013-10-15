@@ -47,7 +47,7 @@ with examples.
 ## TODO
 []: {{{1
 
-  * more image manipulation functions!
+  * more image functions!
   * examples!
   * specs/docs!
   * ...
