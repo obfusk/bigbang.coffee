@@ -2,7 +2,7 @@
 #
 #     File        : bigbang.coffee
 #     Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-#     Date        : 2013-10-14
+#     Date        : 2013-10-15
 #
 #     Copyright   : Copyright (C) 2013  Felix C. Stegerman
 #     Licence     : GPLv2 or GPLv3 or LGPLv3 or EPLv1
@@ -13,7 +13,7 @@
 #
 # https://github.com/obfusk/bigbang.coffee
 #
-# License: GPLv2 or EPLv1.
+# Licence: GPLv2 or GPLv3 or LGPLv3 or EPLv1.
 
 # underscore + exports
 # ---------------------------
@@ -26,7 +26,7 @@ if exports? then module.exports = B else this.bigbang = B
 # requestAnimationFrame / polyfill
 # ---------------------------
 
-polyRequestAnimationFrame = (delay = 17) ->
+polyRequestAnimationFrame = (delay = 17) ->                     # {{{1
     console.warn 'polyfilling *RequestAnimationFrame ...'
     last = 0
     (cb) ->
@@ -34,13 +34,15 @@ polyRequestAnimationFrame = (delay = 17) ->
       dt    = Math.max 0, delay - (cur - last)
       last  = cur + dt
       window.setTimeout (-> cb +new Date), dt
+                                                                # }}}1
 
 # NB: using prefixed versions of requestAnimationFrame only b/c
 # requestAnimationFrame itself uses relative timestamps; also:
 # webkitRequestAnimationFrame seems to pass floating point timestamps.
-B.anim = anim = window?.webkitRequestAnimationFrame ||
-                window?.mozRequestAnimationFrame ||
-                polyRequestAnimationFrame()
+B.requestAnimationFrame = anim =
+  window?.webkitRequestAnimationFrame ||
+  window?.mozRequestAnimationFrame ||
+  polyRequestAnimationFrame()
 
 
 # main function + stop_with
@@ -77,7 +79,7 @@ B._call = _call = (opts) ->                                     # {{{1
   anim tick
                                                                 # }}}1
 
-B._handle_keys = _handle_keys = (opts, f) ->
+B._handle_keys = _handle_keys = (opts, f) ->                    # {{{1
   $ = opts.$ || window.$
   $(opts.canvas).keydown (e) ->
     if !e.altKey && !e.ctrlKey && !e.metaKey &&
@@ -86,6 +88,7 @@ B._handle_keys = _handle_keys = (opts, f) ->
       k == null
     else
       true
+                                                                # }}}1
 
 # a-z, A-Z, 0-9, SHIFT_0..SHIFT_9, backspace..up, BACKSPACE..UP
 B._get_key = _get_key = (w, s) ->                               # {{{1
@@ -123,9 +126,9 @@ B.Stop = Stop
 B.empty_scene = empty_scene = (width, height) -> (canvas) ->
   canvas.width = width; canvas.height = height
 
-# string at center; TODO
-B.place_text = place_text =
-  (string, fontsize, colour, scene, $ = window.$) -> (canvas) ->
+# string with center at coordinates
+B.place_text = place_text =                                     # {{{1
+  (string, x, y, fontsize, colour, scene, $ = window.$) -> (canvas) ->
     scene canvas
     ctx = canvas.getContext '2d'
     ctx.save()
@@ -133,10 +136,9 @@ B.place_text = place_text =
     ctx.fillStyle     = colour
     ctx.textBaseline  = 'bottom'
     [w,h]             = measureText $, string, fontsize, 'sans-serif'
-    x                 = Math.round((canvas.width  - w) / 2)
-    y                 = Math.round((canvas.height + h) / 2)
-    ctx.fillText string, x, y
+    ctx.fillText string, Math.round(x - w/2), Math.round(y + h/2)
     ctx.restore()
+                                                                # }}}1
 
 # image with center at coordinates
 B.place_image = place_image = (image, x, y, scene) -> (canvas) ->
@@ -150,7 +152,7 @@ B.place_image = place_image = (image, x, y, scene) -> (canvas) ->
 # miscellaneous functions
 # -----------
 
-B.measureText = measureText = ($, text, size, family) ->
+B.measureText = measureText = ($, text, size, family) ->        # {{{1
   c = measureText.cache["#{size}|#{family}|#{text}"]
   return c if c
   d = $ '<div>'; d.text text
@@ -160,5 +162,6 @@ B.measureText = measureText = ($, text, size, family) ->
   d.remove()
   measureText.cache["#{size}|#{family}|#{text}"] = [w,h]
 measureText.cache = {}
+                                                                # }}}1
 
 # <!-- vim: set tw=70 sw=2 sts=2 et fdm=marker : -->
