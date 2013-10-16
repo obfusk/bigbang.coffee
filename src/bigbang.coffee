@@ -176,10 +176,10 @@ B.handle_keys = handle_keys = (elem, f, $ = window.$) ->        # {{{1
 B.key_to_string = key_to_string = (which, shift) ->             # {{{1
   w = which; s = shift
   switch
-    when keyranges.ALPHA.from <= w && w <= keyranges.ALPHA.to
+    when keyranges.ALPHA.from <= w <= keyranges.ALPHA.to
       c = String.fromCharCode w
       if s then c else c.toLowerCase()
-    when keyranges.NUM.from <= w && w <= keyranges.NUM.to
+    when keyranges.NUM.from <= w <= keyranges.NUM.to
       c = String.fromCharCode w
       if s then "SHIFT_#{c}" else c
     else
