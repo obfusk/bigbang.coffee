@@ -60,7 +60,7 @@ for racket.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>U = <span class="keyword">this</span>._ || require <span class="string">'underscore'</span>
-<span class="function"><span class="title">B</span></span> = -&gt; B._call arguments...
+<span class="function"><span class="title">B</span></span> = -&gt; B.bigbang arguments...
 <span class="keyword">if</span> exports? <span class="keyword">then</span> module.exports = B <span class="keyword">else</span> <span class="keyword">this</span>.bigbang = B</pre></div></div>
             
         </li>
@@ -129,7 +129,7 @@ know: webkitRequestAnimationFrame uses floating point timestamps.</p>
               <div class="pilwrap for-h2">
                 <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
-              <h2>main function, keys, and stop_with</h2>
+              <h2>bigbang, stop_with, and keys</h2>
 
             </div>
             
@@ -174,18 +174,14 @@ world (optional)</li>
 
 <p>To stop the world from <code>on_tick</code> or <code>on_key</code>, return
 <code>stop_with(new_world)</code> instead of <code>new_world</code>.</p>
-<h3>Key presses</h3>
-<p>The key pressed handled are a-z, 0-9 and the keys in keycodes, with
-and without shift.  a-z without shift is returned as &quot;a&quot;-&quot;z&quot;; A-Z
-with shift is returned as &quot;A&quot;-&quot;Z&quot;; 0-9 without shift is returned as
-&quot;0&quot;-&quot;9&quot;; 0-9 with shift is returned as &quot;SHIFT_0&quot;..&quot;SHIFT_9&quot;; the
-other key codes are retured as the keys in keycodes, lowercase
-without shift (e.g. &quot;left&quot;), uppercase with shift (e.g. &quot;HOME&quot;).</p>
+<p>For details on key press handling, see <code>handle_keys</code>.  If you want
+to use a different key press handling library, set the <code>handle_keys</code>
+option to a function with the same api as <code>handle_keys</code>.</p>
 <!-- }}}1 -->
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>B._call = <span class="function"><span class="title">_call</span></span> = (opts) -&gt;                                     <span class="comment"># {{{1</span>
+            <div class="content"><div class='highlight'><pre>B.<span class="function"><span class="title">bigbang</span></span> = (opts) -&gt;                                           <span class="comment"># {{{1</span>
   world   = opts.world; fps = opts.fps || <span class="number">60</span>
   done    = opts.stop_when?(world) || <span class="literal">false</span>
   last    = +<span class="keyword">new</span> Date
@@ -218,7 +214,8 @@ without shift (e.g. &quot;left&quot;), uppercase with shift (e.g. &quot;HOME&quo
       draw(); changed = <span class="literal">false</span>
     anim tick <span class="keyword">unless</span> done
 
-  cancel_keys = _handle_keys opts, key
+  cancel_keys = (opts.handle_keys || handle_keys) opts.canvas, key,
+                  opts.$
   anim tick</pre></div></div>
             
         </li>
@@ -232,14 +229,11 @@ without shift (e.g. &quot;left&quot;), uppercase with shift (e.g. &quot;HOME&quo
               </div>
                <!-- }}}1 -->
 
-<p>key codes</p>
+<p>stop the universe; see bigbang</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>B.keycodes = keycodes =
-  BACKSPACE: <span class="number">8</span>, COMMA: <span class="number">188</span>, DELETE: <span class="number">46</span>, DOWN: <span class="number">40</span>, END: <span class="number">35</span>, ENTER: <span class="number">13</span>,
-  ESCAPE: <span class="number">27</span>, HOME: <span class="number">36</span>, LEFT: <span class="number">37</span>, PAGE_DOWN: <span class="number">34</span>, PAGE_UP: <span class="number">33</span>,
-  PERIOD: <span class="number">190</span>, RIGHT: <span class="number">39</span>, SHIFT: <span class="number">16</span>, SPACE: <span class="number">32</span>, TAB: <span class="number">9</span>, UP: <span class="number">38</span>,</pre></div></div>
+            <div class="content"><div class='highlight'><pre>B.stop_with = <span class="function"><span class="title">stop_with</span></span> = (w) -&gt; <span class="keyword">new</span> _Stop w</pre></div></div>
             
         </li>
         
@@ -249,37 +243,6 @@ without shift (e.g. &quot;left&quot;), uppercase with shift (e.g. &quot;HOME&quo
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-9">&#182;</a>
-              </div>
-              <p>key ranges</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>B.keyranges = keyranges =
-  ALPHA: { from: <span class="number">65</span>, to: <span class="number">90</span> }, NUM: { from: <span class="number">48</span>, to: <span class="number">57</span> }, <span class="comment"># ...</span></pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-10">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-10">&#182;</a>
-              </div>
-              <p>stop the universe; see bigbang</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>B.stop_with = <span class="function"><span class="title">stop_with</span></span> = (w) -&gt; <span class="keyword">new</span> _Stop w</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-11">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
               <p>wrapper class for stop_with</p>
 
@@ -292,44 +255,62 @@ B._Stop = _Stop</pre></div></div>
         </li>
         
         
-        <li id="section-12">
+        <li id="section-10">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
+                <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
-              <p>handle key presses</p>
+              <!-- {{{1 -->
+
+<p>Handle key presses.  Listens to keydown on elem, calls f with the
+key_to_string&#39;d key; returns a function that cancels the listening.
+the key presses handled are a-z, 0-9, and the keys in keycodes (with
+the exception of SHIFT); with and without shift; when alt, ctrl, or
+meta is pressed, the key press is ignored.</p>
+<p>Why only this limited set of key presses you ask?  Because of
+browser and keyboard layout inconsistencies.  For example, a German
+keyboard layout will result in incorrect results with chromium, and
+even less correct results with firefox.  The key presses currently
+handled seem to be the ones that work correctly in both firefox and
+chromium, for both US English and German keyboard layouts.  YMMV.</p>
+<!-- }}}1 -->
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>B._handle_keys = <span class="function"><span class="title">_handle_keys</span></span> = (opts, f) -&gt;                    <span class="comment"># {{{1</span>
-  $ = opts.$ || window.$
+            <div class="content"><div class='highlight'><pre>B.handle_keys = <span class="function"><span class="title">handle_keys</span></span> = (elem, f, $ = window.$) -&gt;        <span class="comment"># {{{1</span>
   <span class="function"><span class="title">h</span></span> = (e) -&gt;
     <span class="keyword">if</span> !e.altKey &amp;&amp; !e.ctrlKey &amp;&amp; !e.metaKey &amp;&amp;
         e.which != keycodes.SHIFT
-      k = _get_key e.which, e.shiftKey; f k <span class="keyword">if</span> k
+      k = key_to_string e.which, e.shiftKey; f k <span class="keyword">if</span> k
       k == <span class="literal">null</span>
     <span class="keyword">else</span>
       <span class="literal">true</span>
-  $(opts.canvas).<span class="literal">on</span> <span class="string">'keydown'</span>, h
-  -&gt; $(opts.canvas).<span class="literal">off</span> <span class="string">'keydown'</span>, h</pre></div></div>
+  $(elem).<span class="literal">on</span> <span class="string">'keydown'</span>, h
+  -&gt; $(elem).<span class="literal">off</span> <span class="string">'keydown'</span>, h</pre></div></div>
             
         </li>
         
         
-        <li id="section-13">
+        <li id="section-11">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
+                <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
                <!-- }}}1 -->
 
-<p>turn key press into something usable</p>
+<p>Turn keypress into something usable: a-z without shift is returned
+as &quot;a&quot;-&quot;z&quot;; A-Z with shift is returned as &quot;A&quot;-&quot;Z&quot;; 0-9 without shift
+is returned as &quot;0&quot;-&quot;9&quot;; 0-9 with shift is returned as
+&quot;SHIFT_0&quot;..&quot;SHIFT_9&quot;; the other key codes are retured as the keys in
+keycodes, lowercase when without shift (e.g. &quot;left&quot;), uppercase when
+with shift (e.g. &quot;HOME&quot;).</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>B._get_key = <span class="function"><span class="title">_get_key</span></span> = (w, s) -&gt;                               <span class="comment"># {{{1</span>
+            <div class="content"><div class='highlight'><pre>B.key_to_string = <span class="function"><span class="title">key_to_string</span></span> = (which, shift) -&gt;             <span class="comment"># {{{1</span>
+  w = which; s = shift
   <span class="keyword">switch</span>
     <span class="keyword">when</span> keyranges.ALPHA.from &lt;= w &amp;&amp; w &lt;= keyranges.ALPHA.to
       c = String.fromCharCode w
@@ -346,16 +327,49 @@ B._Stop = _Stop</pre></div></div>
         </li>
         
         
-        <li id="section-14">
+        <li id="section-12">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
+                <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
                <!-- }}}1 -->
 
+<p>key codes</p>
 
-<h2>image functions</h2>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>B.keycodes = keycodes =
+  BACKSPACE: <span class="number">8</span>, COMMA: <span class="number">188</span>, DELETE: <span class="number">46</span>, DOWN: <span class="number">40</span>, END: <span class="number">35</span>, ENTER: <span class="number">13</span>,
+  ESCAPE: <span class="number">27</span>, HOME: <span class="number">36</span>, LEFT: <span class="number">37</span>, PAGE_DOWN: <span class="number">34</span>, PAGE_UP: <span class="number">33</span>,
+  PERIOD: <span class="number">190</span>, RIGHT: <span class="number">39</span>, SHIFT: <span class="number">16</span>, SPACE: <span class="number">32</span>, TAB: <span class="number">9</span>, UP: <span class="number">38</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>key ranges</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>B.keyranges = keyranges =
+  ALPHA: { from: <span class="number">65</span>, to: <span class="number">90</span> }, NUM: { from: <span class="number">48</span>, to: <span class="number">57</span> }, <span class="comment"># ...</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <h2>image functions</h2>
 
             </div>
             
