@@ -1,0 +1,17 @@
+src_files:
+  - public/js/**/*.{js,coffee}
+
+stylesheets:
+  - css/**/*.css
+
+helpers:
+  - helpers/**/*.{js,coffee}
+
+spec_files:
+  - '**/*[sS]pec.{js,coffee}'
+
+src_dir:
+
+spec_dir:
+
+spec_helper: spec/js/support/jasmine_helper.rb

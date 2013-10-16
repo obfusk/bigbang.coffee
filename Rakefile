@@ -1,16 +1,11 @@
+desc 'Build'
+task :build do
+  sh 'coffee -c src/bigbang.coffee'
+end
+
 desc 'Run specs'
-task :spec do
-  sh 'jasmine-node --coffee spec/'
-end
-
-desc 'Run specs verbosely'
-task 'spec:verbose' do
-  sh 'jasmine-node --coffee --verbose spec/'
-end
-
-desc 'Run specs verbosely, view w/ less'
-task 'spec:less' do
-  sh 'jasmine-node --coffee --verbose spec/ | less -R'
+task :spec => :build do
+  sh 'cd test && rake jasmine:ci'
 end
 
 desc 'Generate docs'
@@ -20,7 +15,7 @@ end
 
 desc 'Cleanup'
 task :clean do
-  sh 'rm -rf doc/'
+  sh 'rm -rf doc/ node_modules/ src/*.js'
 end
 
 desc 'Update Pages'

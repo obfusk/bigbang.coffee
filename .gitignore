@@ -2,3 +2,5 @@
 *.swp
 
 /doc
+/node_modules
+/src/bigbang.js
