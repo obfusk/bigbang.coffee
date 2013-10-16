@@ -23,7 +23,7 @@
 # --------------------
 
 U = this._ || require 'underscore'
-B = -> B._call arguments...
+B = -> B.bigbang arguments...
 if exports? then module.exports = B else this.bigbang = B
 
 
@@ -50,8 +50,8 @@ B.requestAnimationFrame = anim =
   polyRequestAnimationFrame()
 
 
-# main function, keys, and stop_with
-# ----------------------------------
+# bigbang, stop_with, and keys
+# ----------------------------
 
 # <!-- {{{1 -->
 #
@@ -88,17 +88,12 @@ B.requestAnimationFrame = anim =
 # To stop the world from `on_tick` or `on_key`, return
 # `stop_with(new_world)` instead of `new_world`.
 #
-# ### Key presses
-#
-# The key pressed handled are a-z, 0-9 and the keys in keycodes, with
-# and without shift.  a-z without shift is returned as "a"-"z"; A-Z
-# with shift is returned as "A"-"Z"; 0-9 without shift is returned as
-# "0"-"9"; 0-9 with shift is returned as "SHIFT_0".."SHIFT_9"; the
-# other key codes are retured as the keys in keycodes, lowercase
-# without shift (e.g. "left"), uppercase with shift (e.g. "HOME").
+# For details on key press handling, see `handle_keys`.  If you want
+# to use a different key press handling library, set the `handle_keys`
+# option to a function with the same api as `handle_keys`.
 #
 # <!-- }}}1 -->
-B._call = _call = (opts) ->                                     # {{{1
+B.bigbang = (opts) ->                                           # {{{1
   world   = opts.world; fps = opts.fps || 60
   done    = opts.stop_when?(world) || false
   last    = +new Date
@@ -131,19 +126,10 @@ B._call = _call = (opts) ->                                     # {{{1
       draw(); changed = false
     anim tick unless done
 
-  cancel_keys = _handle_keys opts, key
+  cancel_keys = (opts.handle_keys || handle_keys) opts.canvas, key,
+                  opts.$
   anim tick
                                                       #  <!-- }}}1 -->
-
-# key codes
-B.keycodes = keycodes =
-  BACKSPACE: 8, COMMA: 188, DELETE: 46, DOWN: 40, END: 35, ENTER: 13,
-  ESCAPE: 27, HOME: 36, LEFT: 37, PAGE_DOWN: 34, PAGE_UP: 33,
-  PERIOD: 190, RIGHT: 39, SHIFT: 16, SPACE: 32, TAB: 9, UP: 38,
-
-# key ranges
-B.keyranges = keyranges =
-  ALPHA: { from: 65, to: 90 }, NUM: { from: 48, to: 57 }, # ...
 
 # stop the universe; see bigbang
 B.stop_with = stop_with = (w) -> new _Stop w
@@ -153,22 +139,42 @@ class _Stop
   constructor: (@world) ->
 B._Stop = _Stop
 
-# handle key presses
-B._handle_keys = _handle_keys = (opts, f) ->                    # {{{1
-  $ = opts.$ || window.$
+# <!-- {{{1 -->
+#
+# Handle key presses.  Listens to keydown on elem, calls f with the
+# key_to_string'd key; returns a function that cancels the listening.
+# the key presses handled are a-z, 0-9, and the keys in keycodes (with
+# the exception of SHIFT); with and without shift; when alt, ctrl, or
+# meta is pressed, the key press is ignored.
+#
+# Why only this limited set of key presses you ask?  Because of
+# browser and keyboard layout inconsistencies.  For example, a German
+# keyboard layout will result in incorrect results with chromium, and
+# even less correct results with firefox.  The key presses currently
+# handled seem to be the ones that work correctly in both firefox and
+# chromium, for both US English and German keyboard layouts.  YMMV.
+#
+# <!-- }}}1 -->
+B.handle_keys = handle_keys = (elem, f, $ = window.$) ->        # {{{1
   h = (e) ->
     if !e.altKey && !e.ctrlKey && !e.metaKey &&
         e.which != keycodes.SHIFT
-      k = _get_key e.which, e.shiftKey; f k if k
+      k = key_to_string e.which, e.shiftKey; f k if k
       k == null
     else
       true
-  $(opts.canvas).on 'keydown', h
-  -> $(opts.canvas).off 'keydown', h
+  $(elem).on 'keydown', h
+  -> $(elem).off 'keydown', h
                                                       #  <!-- }}}1 -->
 
-# turn key press into something usable
-B._get_key = _get_key = (w, s) ->                               # {{{1
+# Turn keypress into something usable: a-z without shift is returned
+# as "a"-"z"; A-Z with shift is returned as "A"-"Z"; 0-9 without shift
+# is returned as "0"-"9"; 0-9 with shift is returned as
+# "SHIFT_0".."SHIFT_9"; the other key codes are retured as the keys in
+# keycodes, lowercase when without shift (e.g. "left"), uppercase when
+# with shift (e.g. "HOME").
+B.key_to_string = key_to_string = (which, shift) ->             # {{{1
+  w = which; s = shift
   switch
     when keyranges.ALPHA.from <= w && w <= keyranges.ALPHA.to
       c = String.fromCharCode w
@@ -182,6 +188,16 @@ B._get_key = _get_key = (w, s) ->                               # {{{1
           return if s then k else k.toLowerCase()
       null
                                                       #  <!-- }}}1 -->
+
+# key codes
+B.keycodes = keycodes =
+  BACKSPACE: 8, COMMA: 188, DELETE: 46, DOWN: 40, END: 35, ENTER: 13,
+  ESCAPE: 27, HOME: 36, LEFT: 37, PAGE_DOWN: 34, PAGE_UP: 33,
+  PERIOD: 190, RIGHT: 39, SHIFT: 16, SPACE: 32, TAB: 9, UP: 38
+
+# key ranges
+B.keyranges = keyranges =
+  ALPHA: { from: 65, to: 90 }, NUM: { from: 48, to: 57 }, # ...
 
 
 # image functions
