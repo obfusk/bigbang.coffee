@@ -42,6 +42,8 @@ with examples.
     $ rake spec
     $ rake docs
 
+NB: to run the specs, you need the jasmine gem (>= 2.0.0.rc4).
+
 []: }}}1
 
 ## TODO

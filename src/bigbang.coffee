@@ -235,7 +235,8 @@ B.place_image = place_image = (image, x, y, scene) -> (canvas) ->
 # miscellaneous functions
 # -----------------------
 
-# measure text height and width using a temporary hidden div
+# measure text height and width using a temporary hidden div;
+# returns [width, height]
 B.measure_text = measure_text = ($, text, size, family) ->      # {{{1
   c = measure_text.cache["#{size}|#{family}|#{text}"]
   return c if c

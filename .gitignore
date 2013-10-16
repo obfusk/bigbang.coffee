@@ -3,4 +3,5 @@
 
 /doc
 /node_modules
-/src/bigbang.js
+/spec/*.js
+/src/*.js

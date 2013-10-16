@@ -12,6 +12,6 @@ spec_files:
 
 src_dir:
 
-spec_dir:
+spec_dir: spec/js
 
 spec_helper: spec/js/support/jasmine_helper.rb
