@@ -2,7 +2,7 @@
 
     File        : README.md
     Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-    Date        : 2013-10-15
+    Date        : 2013-10-16
 
     Copyright   : Copyright (C) 2013  Felix C. Stegerman
     Version     : v0.0.1-SNAPSHOT
@@ -47,9 +47,9 @@ with examples.
 ## TODO
 []: {{{1
 
-  * more image functions!
+  * more scene and image functions!
   * examples!
-  * specs/docs!
+  * specs!
   * ...
 
 []: }}}1

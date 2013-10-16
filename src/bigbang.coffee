@@ -2,7 +2,7 @@
 #
 #     File        : bigbang.coffee
 #     Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-#     Date        : 2013-10-15
+#     Date        : 2013-10-16
 #
 #     Copyright   : Copyright (C) 2013  Felix C. Stegerman
 #     Licence     : GPLv2 or GPLv3 or LGPLv3 or EPLv1
@@ -64,9 +64,9 @@ B.requestAnimationFrame = anim =
 #       world:        object,
 #       on_tick:      ((world) -> new_world),
 #       on_key:       ((world, key) -> new_world),
-#       to_draw:      ((world) -> image),
+#       to_draw:      ((world) -> scene),
 #       stop_when:    ((world) -> boolean),
-#       last_picture: ((world) -> image)
+#       last_picture: ((world) -> scene)
 #
 # ### Options
 #
@@ -200,7 +200,7 @@ B.keyranges = keyranges =
   ALPHA: { from: 65, to: 90 }, NUM: { from: 48, to: 57 }, # ...
 
 
-# image functions
+# scene functions
 # ---------------
 
 # empty scene
@@ -216,7 +216,7 @@ B.place_text = place_text =                                     # {{{1
     ctx.font          = "#{fontsize} sans-serif"
     ctx.fillStyle     = colour
     ctx.textBaseline  = 'bottom'
-    [w,h]             = measureText $, string, fontsize, 'sans-serif'
+    [w,h]             = measure_text $, string, fontsize, 'sans-serif'
     ctx.fillText string, Math.round(x - w / 2), Math.round(y + h / 2)
     ctx.restore()
                                                       #  <!-- }}}1 -->
@@ -229,23 +229,23 @@ B.place_image = place_image = (image, x, y, scene) -> (canvas) ->
   y_  = y - Math.round(image.height / 2)
   ctx.drawImage image, x_, y_
 
-# ... TODO: more image functions ...
+# ... TODO: more scene and image functions ...
 
 
 # miscellaneous functions
 # -----------------------
 
 # measure text height and width using a temporary hidden div
-B.measureText = measureText = ($, text, size, family) ->        # {{{1
-  c = measureText.cache["#{size}|#{family}|#{text}"]
+B.measure_text = measure_text = ($, text, size, family) ->      # {{{1
+  c = measure_text.cache["#{size}|#{family}|#{text}"]
   return c if c
   d = $ '<div>'; d.text text
   d.css display: 'none', 'font-size': size, 'font-family': family
   $('body').append d
   w = d.width(); h = d.height()
   d.remove()
-  measureText.cache["#{size}|#{family}|#{text}"] = [w,h]
-measureText.cache = {}
+  measure_text.cache["#{size}|#{family}|#{text}"] = [w,h]
+measure_text.cache = {}
                                                       #  <!-- }}}1 -->
 
 # <!-- vim: set tw=70 sw=2 sts=2 et fdm=marker : -->
