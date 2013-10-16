@@ -31,7 +31,7 @@
 
 <pre><code>File        : bigbang.coffee
 Maintainer  : Felix C. Stegerman &lt;flx@obfusk.net&gt;
-Date        : 2013-10-15
+Date        : 2013-10-16
 
 Copyright   : Copyright (C) 2013  Felix C. Stegerman
 Licence     : GPLv2 or GPLv3 or LGPLv3 or EPLv1</code></pre>
@@ -152,9 +152,9 @@ options and handler functions designated</p>
   world:        object,
   on_tick:      ((world) -&gt; new_world),
   on_key:       ((world, key) -&gt; new_world),
-  to_draw:      ((world) -&gt; image),
+  to_draw:      ((world) -&gt; scene),
   stop_when:    ((world) -&gt; boolean),
-  last_picture: ((world) -&gt; image)</code></pre>
+  last_picture: ((world) -&gt; scene)</code></pre>
 <h3>Options</h3>
 <ul>
 <li><code>canvas</code> is the HTML5 canvas to draw on</li>
@@ -369,7 +369,7 @@ with shift (e.g. &quot;HOME&quot;).</p>
               <div class="pilwrap for-h2">
                 <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
-              <h2>image functions</h2>
+              <h2>scene functions</h2>
 
             </div>
             
@@ -410,7 +410,7 @@ with shift (e.g. &quot;HOME&quot;).</p>
     ctx.font          = <span class="string">"<span class="subst">#{fontsize}</span> sans-serif"</span>
     ctx.fillStyle     = colour
     ctx.textBaseline  = <span class="string">'bottom'</span>
-    [w,h]             = measureText $, string, fontsize, <span class="string">'sans-serif'</span>
+    [w,h]             = measure_text $, string, fontsize, <span class="string">'sans-serif'</span>
     ctx.fillText string, Math.round(x - w / <span class="number">2</span>), Math.round(y + h / <span class="number">2</span>)
     ctx.restore()</pre></div></div>
             
@@ -445,7 +445,7 @@ with shift (e.g. &quot;HOME&quot;).</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
-              <p>... TODO: more image functions ...</p>
+              <p>... TODO: more scene and image functions ...</p>
 <h2>miscellaneous functions</h2>
 
             </div>
@@ -463,16 +463,16 @@ with shift (e.g. &quot;HOME&quot;).</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>B.measureText = <span class="function"><span class="title">measureText</span></span> = ($, text, size, family) -&gt;        <span class="comment"># {{{1</span>
-  c = measureText.cache[<span class="string">"<span class="subst">#{size}</span>|<span class="subst">#{family}</span>|<span class="subst">#{text}</span>"</span>]
+            <div class="content"><div class='highlight'><pre>B.measure_text = <span class="function"><span class="title">measure_text</span></span> = ($, text, size, family) -&gt;      <span class="comment"># {{{1</span>
+  c = measure_text.cache[<span class="string">"<span class="subst">#{size}</span>|<span class="subst">#{family}</span>|<span class="subst">#{text}</span>"</span>]
   <span class="keyword">return</span> c <span class="keyword">if</span> c
   d = $ <span class="string">'&lt;div&gt;'</span>; d.text text
   d.css display: <span class="string">'none'</span>, <span class="string">'font-size'</span>: size, <span class="string">'font-family'</span>: family
   $(<span class="string">'body'</span>).append d
   w = d.width(); h = d.height()
   d.remove()
-  measureText.cache[<span class="string">"<span class="subst">#{size}</span>|<span class="subst">#{family}</span>|<span class="subst">#{text}</span>"</span>] = [w,h]
-measureText.cache = {}</pre></div></div>
+  measure_text.cache[<span class="string">"<span class="subst">#{size}</span>|<span class="subst">#{family}</span>|<span class="subst">#{text}</span>"</span>] = [w,h]
+measure_text.cache = {}</pre></div></div>
             
         </li>
         
