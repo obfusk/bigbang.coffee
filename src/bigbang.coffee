@@ -1,4 +1,6 @@
-# <!-- {{{1 -->
+# <!--
+###
+# {{{1 -->
 #
 #     File        : bigbang.coffee
 #     Maintainer  : Felix C. Stegerman <flx@obfusk.net>
@@ -7,7 +9,9 @@
 #     Copyright   : Copyright (C) 2013  Felix C. Stegerman
 #     Licence     : GPLv2 or GPLv3 or LGPLv3 or EPLv1
 #
-# <!-- }}}1 -->
+# <!-- }}}1
+###
+# -->
 
 # graphical functional programming for js/coffee
 #
@@ -68,7 +72,7 @@ B.requestAnimationFrame = anim =
 #       stop_when:    ((world) -> boolean),
 #       last_picture: ((world) -> scene)
 #
-# ### Options
+# Options:
 #
 #   * `canvas` is the HTML5 canvas to draw on
 #   * `fps` is the requested frame rate (defaults to 60)
