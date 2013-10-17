@@ -27,7 +27,9 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <!-- {{{1 -->
+              <!--
+##
+{{{1 -->
 
 <pre><code>File        : bigbang.coffee
 Maintainer  : Felix C. Stegerman &lt;flx@obfusk.net&gt;
@@ -35,7 +37,9 @@ Date        : 2013-10-16
 
 Copyright   : Copyright (C) 2013  Felix C. Stegerman
 Licence     : GPLv2 or GPLv3 or LGPLv3 or EPLv1</code></pre>
-<!-- }}}1 -->
+<!-- }}}1
+##
+-->
 
 <p>graphical functional programming for js/coffee</p>
 <p>Create graphical programs (like games) in coffeescript or javascript
@@ -155,7 +159,7 @@ options and handler functions designated</p>
   to_draw:      ((world) -&gt; scene),
   stop_when:    ((world) -&gt; boolean),
   last_picture: ((world) -&gt; scene)</code></pre>
-<h3>Options</h3>
+<p>Options:</p>
 <ul>
 <li><code>canvas</code> is the HTML5 canvas to draw on</li>
 <li><code>fps</code> is the requested frame rate (defaults to 60)</li>
@@ -312,10 +316,10 @@ with shift (e.g. &quot;HOME&quot;).</p>
             <div class="content"><div class='highlight'><pre>B.key_to_string = <span class="function"><span class="title">key_to_string</span></span> = (which, shift) -&gt;             <span class="comment"># {{{1</span>
   w = which; s = shift
   <span class="keyword">switch</span>
-    <span class="keyword">when</span> keyranges.ALPHA.from &lt;= w &amp;&amp; w &lt;= keyranges.ALPHA.to
+    <span class="keyword">when</span> keyranges.ALPHA.from &lt;= w &lt;= keyranges.ALPHA.to
       c = String.fromCharCode w
       <span class="keyword">if</span> s <span class="keyword">then</span> c <span class="keyword">else</span> c.toLowerCase()
-    <span class="keyword">when</span> keyranges.NUM.from &lt;= w &amp;&amp; w &lt;= keyranges.NUM.to
+    <span class="keyword">when</span> keyranges.NUM.from &lt;= w &lt;= keyranges.NUM.to
       c = String.fromCharCode w
       <span class="keyword">if</span> s <span class="keyword">then</span> <span class="string">"SHIFT_<span class="subst">#{c}</span>"</span> <span class="keyword">else</span> c
     <span class="keyword">else</span>
