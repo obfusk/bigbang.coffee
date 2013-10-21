@@ -64,7 +64,7 @@ B.requestAnimationFrame = anim =
 # options and handler functions designated
 #
 #     bigbang
-#       canvas:       html5_canvas,
+#       canvas:       element,
 #       fps:          int,
 #       world:        object,
 #       on_tick:      ((world) -> new_world),
@@ -89,6 +89,11 @@ B.requestAnimationFrame = anim =
 #     world (optional)
 #
 # <!-- ... -->
+#
+# The canvas need not be an actual canvas: it can be any element you
+# wish to "draw" the world with.  It can be (part of) the body of an
+# event-driven page.  In this case, you will also have a different
+# concept of "scene".
 #
 # To stop the world from `on_tick` or `on_key`, return
 # `stop_with(new_world)` instead of `new_world`.
