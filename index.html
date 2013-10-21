@@ -152,7 +152,7 @@ know: webkitRequestAnimationFrame uses floating point timestamps.</p>
 <p>big bang: start a new universe whose behaviour is specified by the
 options and handler functions designated</p>
 <pre><code>bigbang
-  canvas:       html5_canvas,
+  canvas:       element,
   fps:          int,
   world:        object,
   on_tick:      ((world) -&gt; new_world),
@@ -177,6 +177,10 @@ world (optional)</li>
 </ul>
 <!-- ... -->
 
+<p>The canvas need not be an actual canvas: it can be any element you
+wish to &quot;draw&quot; the world with.  It can be (part of) the body of an
+event-driven page.  In this case, you will also have a different
+concept of &quot;scene&quot;.</p>
 <p>To stop the world from <code>on_tick</code> or <code>on_key</code>, return
 <code>stop_with(new_world)</code> instead of <code>new_world</code>.</p>
 <p>For details on key press handling, see <code>handle_keys</code>.  If you want
