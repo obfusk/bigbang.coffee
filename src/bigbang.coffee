@@ -69,24 +69,44 @@ B.requestAnimationFrame = anim =
 #       world:        object,
 #       on_tick:      ((world) -> new_world),
 #       on_key:       ((world, key) -> new_world),
+#       on_click:     ((world, x, y) -> new_world),
+#       on:           { foo: ((world, ...) -> new_world), ... },
 #       to_draw:      ((world) -> scene),
 #       stop_when:    ((world) -> boolean),
-#       last_picture: ((world) -> scene)
+#       last_picture: ((world) -> scene),
+#       setup:        ((canvas, handlers) -> setup_value),
+#       teardown:     ((canvas, handlers, setup_value) ->
+#                         teardown_value)
+#       on_stop:      ((world, teardown_value) -> ...),
 #
 # Options:
 #
 #   * `canvas` is the HTML5 canvas to draw on
 #   * `fps` is the requested frame rate (defaults to 60)
 #   * `world` is the object representing the initial world
-#   * `on_tick` is called every clock tick to update the world
-#     (optional)
-#   * `on_key` is called every time a key is pressed to update the
-#     world (optional)
+#   * (optional) `on_tick` is called every clock tick to update the
+#     world
+#   * (optional) `on_key` is called every time a key is pressed to
+#     update the world
+#   * (optional) `on_click` is called every time the mouse is clicked
+#     inside the canvas to update the world
+#   * (optional) `on` contains handlers for user-defined events;
+#     `setup` and `teardown` are used to connect handlers to elements
+#     and events; when the user-defined event is triggered, the
+#     appropriate function is called
 #   * `to_draw` is called every time a new world needs to be drawn
-#   * `stop_when` is called to determine if the universe needs to stop
-#     (optional)
-#   * `last_picture` is called instead of `to_draw` to draw the last
-#     world (optional)
+#   * (optional) `stop_when` is called to determine if the universe
+#     needs to stop
+#   * (optional) `last_picture` is called instead of `to_draw` to draw
+#     the last world
+#   * (optional) `setup` is called before the universe starts; the
+#     handlers are the internal event handlers for `on` which `setup`
+#     is expected to connect to the appropriate elements and events
+#   * (optional) `teardown` is called after the universe has ended,
+#     before on_stop; the handlers are the same as passed to `setup`
+#     and can be used to cancel the event handling
+#   * (optional) `on_stop` is called after the universe has ended,
+#     after teardown
 #
 # <!-- ... -->
 #
@@ -102,12 +122,15 @@ B.requestAnimationFrame = anim =
 # to use a different key press handling library, set the `handle_keys`
 # option to a function with the same api as `handle_keys`.
 #
+# For details on mouse click handling, see `handle_click`.
+#
 # <!-- }}}1 -->
 B.bigbang = (opts) ->                                           # {{{1
-  world   = opts.world; fps = opts.fps || 60
-  done    = opts.stop_when?(world) || false
-  last    = +new Date
-  changed = false
+  world       = opts.world; fps = opts.fps || 60
+  done        = opts.stop_when?(world) || false
+  last        = +new Date
+  changed     = false
+  setup_value = null
 
   draw = () ->
     f = if done && opts.last_picture
@@ -126,7 +149,12 @@ B.bigbang = (opts) ->                                           # {{{1
     cancel_keys?() if done
     changed = true
 
-  key = (k) -> change opts.on_key(world, k) if opts.on_key
+  key   = (k) -> change opts.on_key(world, k) if opts.on_key
+  click = (x,y) -> change opts.on_click(world, x, y) if opts.on_click
+
+  handlers = {}
+  for k, v of opts.on || {}
+    do (k,v) -> handlers[k] = (args...) -> change v(world, args...)
 
   tick = (t) ->
     if t - last > 1000 / opts.fps
@@ -134,10 +162,17 @@ B.bigbang = (opts) ->                                           # {{{1
       change opts.on_tick(world) if opts.on_tick
     if changed
       draw(); changed = false
-    anim tick unless done
+    unless done
+      anim tick
+    else
+      tv = opts.teardown? opts.canvas, handlers, setup_value
+      opts.on_stop? world, tv
 
-  cancel_keys = (opts.handle_keys || handle_keys) opts.canvas, key,
-                  opts.$
+  hk            = opts.handle_keys  || handle_keys
+  hc            = opts.handle_click || handle_click
+  cancel_keys   = hk opts.canvas, key  , opts.$
+  cancel_click  = hc opts.canvas, click, opts.$
+  setup_value   = opts.setup? opts.canvas, handlers
   anim tick
                                                       #  <!-- }}}1 -->
 
@@ -252,7 +287,7 @@ B.keyranges = keyranges =
 # Handle mouse clicks.  Listens to click on elem, calls f with the
 # {x,y}; returns a function that cancels the listening.
 B.handle_click = handle_click = (elem, f, $ = window.$) ->
-  h = (e) -> f(mouse_position(e)); false
+  h = (e) -> {x,y} = mouse_position e; f x, y; false
   $(elem).on 'keydown', h
   -> $(elem).off 'keydown', h
 
