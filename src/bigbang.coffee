@@ -76,8 +76,8 @@ B.requestAnimationFrame = anim =
 #       last_picture: ((world) -> scene),
 #       setup:        ((canvas, handlers) -> setup_value),
 #       teardown:     ((canvas, handlers, setup_value) ->
-#                         teardown_value)
-#       on_stop:      ((world, teardown_value) -> ...),
+#                         teardown_value),
+#       on_stop:      ((world, teardown_value) -> ...)
 #
 # Options:
 #
