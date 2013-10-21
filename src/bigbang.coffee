@@ -35,7 +35,8 @@ if exports? then module.exports = B else this.bigbang = B
 # --------------------------------
 
 # requestAnimationFrame polyfill
-polyRequestAnimationFrame = (delay = 17) ->                     # {{{1
+B.polyRequestAnimationFrame = polyRequestAnimationFrame =       # {{{1
+  (delay = 17) ->
     console.warn 'polyfilling *RequestAnimationFrame ...'
     last = 0
     (cb) ->
