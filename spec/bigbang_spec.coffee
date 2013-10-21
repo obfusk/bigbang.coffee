@@ -82,8 +82,61 @@ describe 'place_image', ->                                      # {{{1
 
 # ...
 
-describe 'handle_keys', ->
-  # ...
+describe 'handle_keys', ->                                      # {{{1
+  elem = log = fake$ = null
+  event = (f, which, shift = false, g = null) ->
+    c = B.handle_keys elem, ((k) -> f(c)(k)), fake$
+    e = $.Event 'keydown'; e.which = which; e.shiftKey = shift; g? e
+    elem.trigger e
+  beforeEach ->
+    elem  = $('<div>').css width: '400px', height: '300px'
+    log   = []
+    fake$ = (x) ->
+      on:   (e,h) -> log.push ['on' ,x,e]; $(x).on  e, h
+      off:  (e,h) -> log.push ['off',x,e]; $(x).off e, h
+  it 'passes "a" when a is pressed', (done) ->
+    f = (c) -> (k) -> expect(k).toBe 'a'; done()
+    event f, 65
+  it 'passes "Z" when z+shift is pressed', (done) ->
+    f = (c) -> (k) -> expect(k).toBe 'Z'; done()
+    event f, 90, true
+  it 'passes "1" when a is pressed', (done) ->
+    f = (c) -> (k) -> expect(k).toBe '1'; done()
+    event f, 49
+  it 'passes "SHIFT_8" when z+shift is pressed', (done) ->
+    f = (c) -> (k) -> expect(k).toBe 'SHIFT_8'; done()
+    event f, 56, true
+  it 'passes "space" when space is pressed', (done) ->
+    f = (c) -> (k) -> expect(k).toBe 'space'; done()
+    event f, 32
+  it 'passes "LEFT" when left+shift is pressed', (done) ->
+    f = (c) -> (k) -> expect(k).toBe 'LEFT'; done()
+    event f, 37, true
+  it 'is triggered quickly', (done) ->
+    called = false
+    f = (c) -> (k) -> called = true
+    setTimeout (-> expect(called).toBe true; done()), 50
+    event f, 65
+  it 'ignores keydown when which = -1', (done) ->
+    called = false
+    f = (c) -> (k) -> called = true
+    setTimeout (-> expect(called).toBe false; done()), 50
+    event f, -1
+  it 'ignores keydown when altKey = true', (done) ->
+    called = false
+    f = (c) -> (k) -> called = true
+    setTimeout (-> expect(called).toBe false; done()), 50
+    event f, 32, false, (e) -> e.altKey = true
+  it 'calls on and off properly', (done) ->
+    f = (c) -> (k) ->
+      expect(log.length).toBe 1
+      c()
+      expect(log.length).toBe 2
+      expect(log).toEqual [['on' , elem, 'keydown'],
+                           ['off', elem, 'keydown']]
+      done()
+    event f, 65
+                                                                # }}}1
 
 describe 'key_to_string', ->                                    # {{{1
   it 'converts to a', ->
