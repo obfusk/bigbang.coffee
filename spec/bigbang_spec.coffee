@@ -30,6 +30,70 @@ describe 'polyRequestAnimationFrame', ->                        # {{{1
     anim f
                                                                 # }}}1
 
+# ... bigbang, stop_with, handle_keys ...
+
+describe 'key_to_string', ->                                    # {{{1
+  it 'converts to a', ->
+    expect(B.key_to_string 65, false).toBe 'a'
+  it 'converts to z', ->
+    expect(B.key_to_string 90, false).toBe 'z'
+  it 'converts to A', ->
+    expect(B.key_to_string 65, true).toBe 'A'
+  it 'converts to Z', ->
+    expect(B.key_to_string 90, true).toBe 'Z'
+  it 'converts to space', ->
+    expect(B.key_to_string 32, false).toBe 'space'
+  it 'converts to SPACE', ->
+    expect(B.key_to_string 32, true).toBe 'SPACE'
+                                                                # }}}1
+
+describe 'empty_scene', ->
+  it 'sets width and height', ->
+    x = {}; B.empty_scene(800, 600)(x)
+    expect(x.width).toBe 800
+    expect(x.height).toBe 600
+
+describe 'place_text', ->                                       # {{{1
+  log = scene = canvas = ctx = null
+  beforeEach ->
+    log     = []
+    scene   = (c) -> log.push c
+    canvas  = getContext: -> ctx
+    ctx     =
+      save:     -> log.push 'save'
+      restore:  -> log.push 'restore'
+      fillText: (s,x,y) -> this._fillText = {s,x,y}
+    B.place_text('Foo', 100, 200, '1em', 'red', scene)(canvas)
+  it 'calls scene, saves, and restores', ->
+    expect(log).toEqual [canvas, 'save', 'restore']
+  it 'sets font', ->
+    expect(ctx.font).toBe '1em sans-serif'
+  it 'sets fillStyle', ->
+    expect(ctx.fillStyle).toBe 'red'
+  it 'sets textBaseline', ->
+    expect(ctx.textBaseline).toBe 'bottom'
+  it 'calls fillText w/ appropriate arguments', ->
+    [w,h] = B.measure_text $, 'Foo', '1em', 'sans-serif'
+    expect(ctx._fillText.s).toBe 'Foo'
+    expect(ctx._fillText.x).toBe Math.round(100 - w / 2)
+    expect(ctx._fillText.y).toBe Math.round(200 + h / 2)
+                                                                # }}}1
+
+describe 'place_image', ->                                      # {{{1
+  i   = width: 100, height: 200
+  log = scene = canvas = ctx = null
+  beforeEach ->
+    log     = []
+    scene   = (c) -> log.push c
+    canvas  = getContext: -> ctx
+    ctx     = drawImage: (i,x,y) -> this._drawImage = {i,x,y}
+    B.place_image(i, 300, 400, scene)(canvas)
+  it 'calls scene', ->
+    expect(log).toEqual [canvas]
+  it 'calls drawImage w/ appropriate arguments', ->
+    expect(ctx._drawImage).toEqual { i, x: 250, y: 300 }
+                                                                # }}}1
+
 # ...
 
 # FIXME: these tests might be to brittle; current margins based on
