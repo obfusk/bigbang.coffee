@@ -4,7 +4,7 @@
 #
 #     File        : bigbang.coffee
 #     Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-#     Date        : 2013-10-16
+#     Date        : 2013-10-21
 #
 #     Copyright   : Copyright (C) 2013  Felix C. Stegerman
 #     Licence     : GPLv2 or GPLv3 or LGPLv3 or EPLv1
@@ -13,11 +13,11 @@
 ###
 # -->
 
-# graphical functional programming for js/coffee
+# graphical/evented functional programming for js/coffee
 #
-# Create graphical programs (like games) in coffeescript or javascript
-# using plain mathematical functions; inspired by the 2htdp library
-# for racket.
+# Create graphical and evented programs (like games) in coffeescript
+# or javascript using plain mathematical functions; inspired by the
+# 2htdp library for racket.
 #
 # https://github.com/obfusk/bigbang.coffee
 #
