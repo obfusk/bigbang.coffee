@@ -33,7 +33,7 @@
 
 <pre><code>File        : bigbang.coffee
 Maintainer  : Felix C. Stegerman &lt;flx@obfusk.net&gt;
-Date        : 2013-10-16
+Date        : 2013-10-21
 
 Copyright   : Copyright (C) 2013  Felix C. Stegerman
 Licence     : GPLv2 or GPLv3 or LGPLv3 or EPLv1</code></pre>
@@ -41,10 +41,10 @@ Licence     : GPLv2 or GPLv3 or LGPLv3 or EPLv1</code></pre>
 ##
 -->
 
-<p>graphical functional programming for js/coffee</p>
-<p>Create graphical programs (like games) in coffeescript or javascript
-using plain mathematical functions; inspired by the 2htdp library
-for racket.</p>
+<p>graphical/evented functional programming for js/coffee</p>
+<p>Create graphical and evented programs (like games) in coffeescript
+or javascript using plain mathematical functions; inspired by the
+2htdp library for racket.</p>
 <p><a href="https://github.com/obfusk/bigbang.coffee">https://github.com/obfusk/bigbang.coffee</a></p>
 <p>License: GPLv2 or GPLv3 or LGPLv3 or EPLv1.</p>
 <h2>underscore + exports</h2>
@@ -93,7 +93,8 @@ for racket.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="function"><span class="title">polyRequestAnimationFrame</span></span> = (delay = <span class="number">17</span>) -&gt;                     <span class="comment"># {{{1</span>
+            <div class="content"><div class='highlight'><pre>B.polyRequestAnimationFrame = polyRequestAnimationFrame =       <span class="comment"># {{{1</span>
+  (delay = <span class="number">17</span>) -&gt;
     console.warn <span class="string">'polyfilling *RequestAnimationFrame ...'</span>
     last = <span class="number">0</span>
     (cb) -&gt;
