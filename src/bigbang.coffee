@@ -258,7 +258,7 @@ B.mouse_position = mouse_position =                             # {{{1
     cache.left  ?= (e.outerWidth()  - e.width() ) / 2
     cache.top   ?= (e.outerHeight() - e.height()) / 2
     x: event.offsetX - cache.left, y: event.offsetY - cache.top
-                                                                # }}}1
+                                                      #  <!-- }}}1 -->
 
 
 # miscellaneous functions
