@@ -288,8 +288,8 @@ B.keyranges = keyranges =
 # {x,y}; returns a function that cancels the listening.
 B.handle_click = handle_click = (elem, f, $ = window.$) ->
   h = (e) -> {x,y} = mouse_position e; f x, y; false
-  $(elem).on 'keydown', h
-  -> $(elem).off 'keydown', h
+  $(elem).on 'click', h
+  -> $(elem).off 'click', h
 
 # relative mouse position; returns {x,y}
 B.mouse_position = mouse_position =                             # {{{1

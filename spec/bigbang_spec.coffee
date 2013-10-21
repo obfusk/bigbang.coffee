@@ -153,8 +153,33 @@ describe 'key_to_string', ->                                    # {{{1
     expect(B.key_to_string 32, true).toBe 'SPACE'
                                                                 # }}}1
 
-describe 'handle_click', ->
-  # ...
+describe 'handle_click', ->                                     # {{{1
+  elem = log = fake$ = null
+  event = (f, ox, oy) ->
+    c = B.handle_click elem, ((x,y) -> f(c)(x,y)), fake$
+    e = $.Event 'click'; e.offsetX = ox; e.offsetY = oy
+    elem.trigger e
+  beforeEach ->
+    elem  = $('<div>').css
+      width: '400px', height: '300px', border: '10px solid red'
+    log   = []
+    fake$ = (x) ->
+      on:   (e,h) -> log.push ['on' ,x,e]; $(x).on  e, h
+      off:  (e,h) -> log.push ['off',x,e]; $(x).off e, h
+  it 'passes "{x:10,y:20}" when (20,30) is clicked w/ 10px border',
+    (done) ->
+      f = (c) -> (x,y) -> expect({x,y}).toEqual {x:10,y:20}; done()
+      event f, 20, 30
+  it 'calls on and off properly', (done) ->
+    f = (c) -> (x,y) ->
+      expect(log.length).toBe 1
+      c()
+      expect(log.length).toBe 2
+      expect(log).toEqual [['on' , elem, 'click'],
+                           ['off', elem, 'click']]
+      done()
+    event f, 10, 10
+                                                                # }}}1
 
 describe 'mouse_position', ->                                   # {{{1
   elem = null
