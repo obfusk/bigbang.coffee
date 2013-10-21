@@ -30,22 +30,8 @@ describe 'polyRequestAnimationFrame', ->                        # {{{1
     anim f
                                                                 # }}}1
 
-# ... bigbang, stop_with, handle_keys ...
-
-describe 'key_to_string', ->                                    # {{{1
-  it 'converts to a', ->
-    expect(B.key_to_string 65, false).toBe 'a'
-  it 'converts to z', ->
-    expect(B.key_to_string 90, false).toBe 'z'
-  it 'converts to A', ->
-    expect(B.key_to_string 65, true).toBe 'A'
-  it 'converts to Z', ->
-    expect(B.key_to_string 90, true).toBe 'Z'
-  it 'converts to space', ->
-    expect(B.key_to_string 32, false).toBe 'space'
-  it 'converts to SPACE', ->
-    expect(B.key_to_string 32, true).toBe 'SPACE'
-                                                                # }}}1
+describe 'bigbang', ->
+  # ...
 
 describe 'empty_scene', ->
   it 'sets width and height', ->
@@ -73,7 +59,7 @@ describe 'place_text', ->                                       # {{{1
   it 'sets textBaseline', ->
     expect(ctx.textBaseline).toBe 'bottom'
   it 'calls fillText w/ appropriate arguments', ->
-    [w,h] = B.measure_text $, 'Foo', '1em', 'sans-serif'
+    {w,h} = B.measure_text $, 'Foo', '1em', 'sans-serif'
     expect(ctx._fillText.s).toBe 'Foo'
     expect(ctx._fillText.x).toBe Math.round(100 - w / 2)
     expect(ctx._fillText.y).toBe Math.round(200 + h / 2)
@@ -96,6 +82,44 @@ describe 'place_image', ->                                      # {{{1
 
 # ...
 
+describe 'handle_keys', ->
+  # ...
+
+describe 'key_to_string', ->                                    # {{{1
+  it 'converts to a', ->
+    expect(B.key_to_string 65, false).toBe 'a'
+  it 'converts to z', ->
+    expect(B.key_to_string 90, false).toBe 'z'
+  it 'converts to A', ->
+    expect(B.key_to_string 65, true).toBe 'A'
+  it 'converts to Z', ->
+    expect(B.key_to_string 90, true).toBe 'Z'
+  it 'converts to space', ->
+    expect(B.key_to_string 32, false).toBe 'space'
+  it 'converts to SPACE', ->
+    expect(B.key_to_string 32, true).toBe 'SPACE'
+                                                                # }}}1
+
+describe 'handle_click', ->
+  # ...
+
+describe 'mouse_position', ->                                   # {{{1
+  elem = null
+  beforeEach ->
+    elem = $('<div>').css
+      width: '400px', height: '300px'
+      margin: '10px', padding: '20px', border: '30px solid red'
+    $('body').append elem
+  afterEach ->
+    elem.remove()
+  it 'handles padding and border', (done) ->
+    elem.on 'click', (e) ->
+      expect(B.mouse_position e).toEqual x: 5, y: 10
+      done()
+    e = $.Event 'click'; e.offsetX = 55; e.offsetY = 60
+    elem.trigger e
+                                                                # }}}1
+
 # FIXME: these tests might be to brittle; current margins based on
 # tests w/ phantomjs, chromium, firefox; font settings WILL affect
 # this test
@@ -104,9 +128,9 @@ describe 'measure_text', ->                                     # {{{1
     a = [$, 'Foo',  '1em', 'sans-serif']
     b = [$, 'Foo',  '2em', 'sans-serif']
     c = [$, 'Foo', '50px', 'serif']
-    [aw,ah] = B.measure_text a...
-    [bw,bh] = B.measure_text b...
-    [cw,ch] = B.measure_text c...
+    {w:aw,h:ah} = B.measure_text a...
+    {w:bw,h:bh} = B.measure_text b...
+    {w:cw,h:ch} = B.measure_text c...
     between aw, 26, 30; between ah, 17, 23
     between bw, 54, 58; between bh, 36, 43
     between cw, 76, 94; between ch, 57, 65

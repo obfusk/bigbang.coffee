@@ -55,8 +55,8 @@ B.requestAnimationFrame = anim =
   polyRequestAnimationFrame()
 
 
-# bigbang, stop_with, and keys
-# ----------------------------
+# bigbang & stop_with
+# -------------------
 
 # <!-- {{{1 -->
 #
@@ -144,6 +144,42 @@ class _Stop
   constructor: (@world) ->
 B._Stop = _Stop
 
+
+# scene functions
+# ---------------
+
+# empty scene
+B.empty_scene = empty_scene = (width, height) -> (canvas) ->
+  canvas.width = width; canvas.height = height
+
+# text with center at coordinates
+B.place_text = place_text =                                     # {{{1
+  (string, x, y, fontsize, colour, scene, $ = window.$) -> (canvas) ->
+    scene canvas
+    ctx = canvas.getContext '2d'
+    ctx.save()
+    ctx.font          = "#{fontsize} sans-serif"
+    ctx.fillStyle     = colour
+    ctx.textBaseline  = 'bottom'
+    {w,h}             = measure_text $, string, fontsize, 'sans-serif'
+    ctx.fillText string, Math.round(x - w / 2), Math.round(y + h / 2)
+    ctx.restore()
+                                                      #  <!-- }}}1 -->
+
+# image with center at coordinates
+B.place_image = place_image = (image, x, y, scene) -> (canvas) ->
+  scene canvas
+  ctx = canvas.getContext '2d'
+  x_  = x - Math.round(image.width  / 2)
+  y_  = y - Math.round(image.height / 2)
+  ctx.drawImage image, x_, y_
+
+# ... TODO: more scene and image functions ...
+
+
+# keyboard functions
+# ------------------
+
 # <!-- {{{1 -->
 #
 # Handle key presses.  Listens to keydown on elem, calls f with the
@@ -205,43 +241,31 @@ B.keyranges = keyranges =
   ALPHA: { from: 65, to: 90 }, NUM: { from: 48, to: 57 }, # ...
 
 
-# scene functions
+# mouse functions
 # ---------------
 
-# empty scene
-B.empty_scene = empty_scene = (width, height) -> (canvas) ->
-  canvas.width = width; canvas.height = height
+# Handle mouse clicks.  Listens to click on elem, calls f with the
+# {x,y}; returns a function that cancels the listening.
+B.handle_click = handle_click = (elem, f, $ = window.$) ->
+  h = (e) -> f(mouse_position(e)); false
+  $(elem).on 'keydown', h
+  -> $(elem).off 'keydown', h
 
-# text with center at coordinates
-B.place_text = place_text =                                     # {{{1
-  (string, x, y, fontsize, colour, scene, $ = window.$) -> (canvas) ->
-    scene canvas
-    ctx = canvas.getContext '2d'
-    ctx.save()
-    ctx.font          = "#{fontsize} sans-serif"
-    ctx.fillStyle     = colour
-    ctx.textBaseline  = 'bottom'
-    [w,h]             = measure_text $, string, fontsize, 'sans-serif'
-    ctx.fillText string, Math.round(x - w / 2), Math.round(y + h / 2)
-    ctx.restore()
-                                                      #  <!-- }}}1 -->
-
-# image with center at coordinates
-B.place_image = place_image = (image, x, y, scene) -> (canvas) ->
-  scene canvas
-  ctx = canvas.getContext '2d'
-  x_  = x - Math.round(image.width  / 2)
-  y_  = y - Math.round(image.height / 2)
-  ctx.drawImage image, x_, y_
-
-# ... TODO: more scene and image functions ...
+# relative mouse position; returns {x,y}
+B.mouse_position = mouse_position =                             # {{{1
+  (event, elem = event.target, $ = window.$, cache = {}) ->
+    e            = $(elem)
+    cache.left  ?= (e.outerWidth()  - e.width() ) / 2
+    cache.top   ?= (e.outerHeight() - e.height()) / 2
+    x: event.offsetX - cache.left, y: event.offsetY - cache.top
+                                                                # }}}1
 
 
 # miscellaneous functions
 # -----------------------
 
 # measure text height and width using a temporary hidden div;
-# returns [width, height]
+# returns {w:width,h:height}
 B.measure_text = measure_text = ($, text, size, family) ->      # {{{1
   c = measure_text.cache["#{size}|#{family}|#{text}"]
   return c if c
@@ -250,7 +274,7 @@ B.measure_text = measure_text = ($, text, size, family) ->      # {{{1
   $('body').append d
   w = d.width(); h = d.height()
   d.remove()
-  measure_text.cache["#{size}|#{family}|#{text}"] = [w,h]
+  measure_text.cache["#{size}|#{family}|#{text}"] = {w,h}
 measure_text.cache = {}
                                                       #  <!-- }}}1 -->
 
