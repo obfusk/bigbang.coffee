@@ -9,14 +9,14 @@
 #
 # --                                                            ; }}}1
 
-B = bigbang
+B     = bigbang
+anim  = B.polyRequestAnimationFrame()
 
 between = (x, m, n) ->
   expect(x).toBeGreaterThan m
   expect(x).toBeLessThan n
 
 describe 'polyRequestAnimationFrame', ->                        # {{{1
-  anim = B.polyRequestAnimationFrame()
   it 'calls back w/ approx. 60 fps', (done) ->
     i = 0; ts = []
     f = (t) ->
@@ -30,8 +30,151 @@ describe 'polyRequestAnimationFrame', ->                        # {{{1
     anim f
                                                                 # }}}1
 
-describe 'bigbang', ->
-  # ...
+# NB: reliance on $._data may break in future
+describe 'bigbang', ->                                          # {{{1
+  canvas = log = pix = null
+  trig = (t, f) -> (as...) ->
+    e = $.Event t; f e, as...; canvas.trigger e
+  key = trig 'keydown', (e, which, shift = false) ->
+    e.which = which; e.shiftKey = shift
+  click = trig 'click', (e, ox, oy) -> e.offsetX = ox; e.offsetY = oy
+  foo = trig 'foo', (e, x) -> e.x = x
+  bar = trig 'bar', (e, x, y) -> e.x = x; e.y = y
+  beforeEach ->
+    canvas  = $('<canvas>').css width: '400px', height: '300px'
+    log     = []
+    pix     = []
+  it 'can count from 0 to 9; ticking, checking and drawing',    # {{{2
+    (done) ->
+      w = 0
+      t = (n) -> log.push ['t',n]; n + 1
+      q = (n) -> log.push ['q',n]; n == 9
+      d = (n) -> (c) -> c.push n
+      s = (n) ->
+        expect(n).toBe 9
+        expect(log).toEqual [['q',0],['t',0],['q',1],['t',1],
+                             ['q',2],['t',2],['q',3],['t',3],
+                             ['q',4],['t',4],['q',5],['t',5],
+                             ['q',6],['t',6],['q',7],['t',7],
+                             ['q',8],['t',8],['q',9]]
+        expect(pix).toEqual [0..9]
+        done()
+      bigbang
+        canvas: pix, world: w, on_tick: t, stop_when: q, to_draw: d,
+        on_stop: s, animate: anim
+                                                                # }}}2
+  it 'takes ~2 secs to do 40 ticks at 20 fps', (done) ->        # {{{2
+    w = 0
+    t = (n) -> n + 1
+    q = (n) -> n == 40
+    d = (n) -> (c) -> null
+    s = (n) ->
+      between Math.round((+new Date - t1) / 100), 18, 25
+      done()
+    t1 = +new Date
+    bigbang
+      canvas: pix, world: w, on_tick: t, stop_when: q, to_draw: d,
+      on_stop: s, animate: anim, fps: 20
+                                                                # }}}2
+  it 'can stop_with', (done) ->                                 # {{{2
+    w = 0
+    t = (n) ->
+      log.push ['t',n]
+      if n == 6 then B.stop_with 99 else n + 1
+    d = (n) -> (c) -> c.push n
+    s = (n) ->
+      expect(n).toBe 99
+      expect(log).toEqual [['t',0],['t',1],['t',2],['t',3],
+                           ['t',4],['t',5],['t',6]]
+      expect(pix).toEqual [0..6].concat [99]
+      done()
+    bigbang
+      canvas: pix, world: w, on_tick: t, to_draw: d, on_stop: s,
+      animate: anim
+                                                                # }}}2
+  it 'uses last_draw', (done) ->                                # {{{2
+    w = 0
+    t = (n) -> if n == 6 then B.stop_with 99 else n + 1
+    d = (n) -> (c) -> c.push n
+    l = (n) -> (c) -> c.push -n
+    s = (n) ->
+      expect(n).toBe 99
+      expect(pix).toEqual [0..6].concat [-99]
+      done()
+    bigbang
+      canvas: pix, world: w, on_tick: t, to_draw: d, last_draw: l,
+      on_stop: s, animate: anim
+                                                                # }}}2
+  it 'handles keys and cleans up', (done) ->                    # {{{2
+    w = 0
+    d = (n) -> (c) -> pix.push n
+    k = (n, k) ->
+      log.push [n,k]
+      if k == 'space' then B.stop_with 99 else n + 1
+    s = (n) ->
+      expect(n).toBe 99
+      expect(log).toEqual [[0,'a'],[1,'z'],[2,'TAB'],[3,'space']]
+      expect(pix).toEqual [0,1,2,3,99]
+      expect($._data canvas[0], 'events').not.toBeDefined()
+      done()
+    bigbang
+      canvas: canvas, world: w, to_draw: d, on_key: k, on_stop: s,
+      animate: anim
+    key 65; key -1; key 90; key 9, true; key 32; key 48
+                                                                # }}}2
+  it 'handles clicks and cleans up', (done) ->                  # {{{2
+    w = 0
+    d = (n) -> (c) -> pix.push n
+    c = (n, x, y) ->
+      log.push [n,x,y]
+      if _.isEqual [x,y], [37,42] then B.stop_with 99 else n + 1
+    s = (n) ->
+      expect(n).toBe 99
+      expect(log).toEqual [[0,10,7],[1,7,10],[2,100,100],[3,37,42]]
+      expect(pix).toEqual [0,1,2,3,99]
+      expect($._data canvas[0], 'events').not.toBeDefined()
+      done()
+    bigbang
+      canvas: canvas, world: w, to_draw: d, on_click: c, on_stop: s,
+      animate: anim
+    click 10, 7; click 7, 10; click 100, 100; click 37, 42
+                                                                # }}}2
+  it 'handles on; uses setup, teardown', (done) ->              # {{{2
+    w = 0
+    d = (n) -> (c) -> pix.push n
+    f = (n, x) ->
+      log.push ['f',n,x]
+      if x == 'bye' then B.stop_with 99 else n + 1
+    g = (n, x, y) -> log.push ['g',n,x,y]; n * 2
+    o = foo: f, bar: g
+    u = (c,hs) ->
+      h_foo = (e) -> hs.foo e.x
+      h_bar = (e) -> hs.bar e.x, e.y
+      canvas.on 'foo', h_foo
+      canvas.on 'bar', h_bar
+      log.push ['u']; {h_foo,h_bar}
+    t = (c, hs, sv) ->
+      events = _.keys($._data canvas[0], 'events').sort()
+      expect(events).toEqual ['bar', 'foo']
+      canvas.off 'foo', sv.h_foo
+      canvas.off 'bar', sv.h_bar
+      log.push ['t',_.keys(sv).sort()]; 'teardown'
+    s = (n, tv) ->
+      expect(n).toBe 99
+      expect(tv).toBe 'teardown'
+      expect(log).toEqual [['u'],
+                           ['f',0,'hi'],['g',1,'2','OK'],
+                           ['g',2,37,'y'],['f',4,'bye'],
+                           ['t',['h_bar','h_foo']]]
+      expect(pix).toEqual [0,1,2,4,99]
+      expect($._data canvas[0], 'events').not.toBeDefined()
+      done()
+    bigbang
+      canvas: canvas, world: w, to_draw: d, on: o, setup: u,
+      teardown: t, on_stop: s, animate: anim
+    foo 'hi'; bar '2', 'OK'; bar 37, 'y'; foo 'bye'; bar 'NO', 'NO'
+                                                                # }}}2
+                                                                # }}}1
 
 describe 'empty_scene', ->
   it 'sets width and height', ->

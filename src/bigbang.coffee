@@ -49,7 +49,7 @@ B.polyRequestAnimationFrame = polyRequestAnimationFrame =       # {{{1
 # NB: we use the prefixed versions of requestAnimationFrame b/c
 # requestAnimationFrame itself uses relative timestamps; also good to
 # know: webkitRequestAnimationFrame uses floating point timestamps.
-B.requestAnimationFrame = anim =
+B.requestAnimationFrame = requestAnimationFrame =
   window?.webkitRequestAnimationFrame ||
   window?.mozRequestAnimationFrame ||
   polyRequestAnimationFrame()
@@ -64,20 +64,20 @@ B.requestAnimationFrame = anim =
 # options and handler functions designated
 #
 #     bigbang
-#       canvas:       element,
-#       fps:          int,
-#       world:        object,
-#       on_tick:      ((world) -> new_world),
-#       on_key:       ((world, key) -> new_world),
-#       on_click:     ((world, x, y) -> new_world),
-#       on:           { foo: ((world, ...) -> new_world), ... },
-#       to_draw:      ((world) -> scene),
-#       stop_when:    ((world) -> boolean),
-#       last_picture: ((world) -> scene),
-#       setup:        ((canvas, handlers) -> setup_value),
-#       teardown:     ((canvas, handlers, setup_value) ->
-#                         teardown_value),
-#       on_stop:      ((world, teardown_value) -> ...)
+#       canvas:     element,
+#       fps:        int,
+#       world:      object,
+#       on_tick:    ((world) -> new_world),
+#       on_key:     ((world, key) -> new_world),
+#       on_click:   ((world, x, y) -> new_world),
+#       on:         { foo: ((world, ...) -> new_world), ... },
+#       to_draw:    ((world) -> scene),
+#       stop_when:  ((world) -> boolean),
+#       last_draw:  ((world) -> scene),
+#       setup:      ((canvas, handlers) -> setup_value),
+#       teardown:   ((canvas, handlers, setup_value) ->
+#                       teardown_value),
+#       on_stop:    ((world, teardown_value) -> ...)
 #
 # Options:
 #
@@ -97,7 +97,7 @@ B.requestAnimationFrame = anim =
 #   * `to_draw` is called every time a new world needs to be drawn
 #   * (optional) `stop_when` is called to determine if the universe
 #     needs to stop
-#   * (optional) `last_picture` is called instead of `to_draw` to draw
+#   * (optional) `last_draw` is called instead of `to_draw` to draw
 #     the last world
 #   * (optional) `setup` is called before the universe starts; the
 #     handlers are the internal event handlers for `on` which `setup`
@@ -126,52 +126,55 @@ B.requestAnimationFrame = anim =
 #
 # <!-- }}}1 -->
 B.bigbang = (opts) ->                                           # {{{1
-  world       = opts.world; fps = opts.fps || 60
+  anim        = opts.animate || requestAnimationFrame
+  world       = opts.world
+  fps         = opts.fps || 60
   done        = opts.stop_when?(world) || false
   last        = +new Date
-  changed     = false
+  changes     = [{world,done}]
   setup_value = null
 
   draw = () ->
-    f = if done && opts.last_picture
-      opts.last_picture
-    else
-      opts.to_draw
-    f(world)(opts.canvas)
+    for {world:w,done:d} in changes
+      if d && opts.last_draw
+        opts.last_draw(w)(opts.canvas)
+      else
+        opts.to_draw(w)(opts.canvas)
+    changes = []
 
-  change = (x) ->
+  change = (f, args...) ->
+    return if done || !f
+    x = f world, args...
     if x instanceof _Stop
       world = x.world
       done  = true
     else
       world = x
       done  = true if opts.stop_when? world
-    cancel_keys?() if done
-    changed = true
+    changes.push {world,done}
 
-  key   = (k) -> change opts.on_key(world, k) if opts.on_key
-  click = (x,y) -> change opts.on_click(world, x, y) if opts.on_click
+  key   = (k) -> change opts.on_key, k
+  click = (x,y) -> change opts.on_click, x, y
 
   handlers = {}
   for k, v of opts.on || {}
-    do (k,v) -> handlers[k] = (args...) -> change v(world, args...)
+    do (k,v) -> handlers[k] = (args...) -> change v, args...
 
   tick = (t) ->
-    if t - last > 1000 / opts.fps
-      last = t
-      change opts.on_tick(world) if opts.on_tick
-    if changed
-      draw(); changed = false
+    if t - last > 1000 / fps
+      last = t; change opts.on_tick
+    draw()
     unless done
       anim tick
     else
+      cancel_keys?(); cancel_click?()
       tv = opts.teardown? opts.canvas, handlers, setup_value
       opts.on_stop? world, tv
 
   hk            = opts.handle_keys  || handle_keys
   hc            = opts.handle_click || handle_click
-  cancel_keys   = hk opts.canvas, key  , opts.$
-  cancel_click  = hc opts.canvas, click, opts.$
+  cancel_keys   = opts.on_key   && hk opts.canvas, key  , opts.$
+  cancel_click  = opts.on_click && hc opts.canvas, click, opts.$
   setup_value   = opts.setup? opts.canvas, handlers
   anim tick
                                                       #  <!-- }}}1 -->
