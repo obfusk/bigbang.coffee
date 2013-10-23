@@ -4,7 +4,7 @@
 #
 #     File        : bigbang.coffee
 #     Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-#     Date        : 2013-10-21
+#     Date        : 2013-10-23
 #
 #     Copyright   : Copyright (C) 2013  Felix C. Stegerman
 #     Licence     : GPLv2 or GPLv3 or LGPLv3 or EPLv1
@@ -176,7 +176,7 @@ B.bigbang = (opts) ->                                           # {{{1
   cancel_keys   = opts.on_key   && hk opts.canvas, key  , opts.$
   cancel_click  = opts.on_click && hc opts.canvas, click, opts.$
   setup_value   = opts.setup? opts.canvas, handlers
-  anim tick
+  draw(); anim tick
                                                       #  <!-- }}}1 -->
 
 # stop the universe; see bigbang
