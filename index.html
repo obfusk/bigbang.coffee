@@ -155,7 +155,7 @@ options and handler functions designated</p>
   canvas:     element,
   fps:        int,
   world:      object,
-  on_tick:    ((world) -&gt; new_world),
+  on_tick:    ((world, time) -&gt; new_world),
   on_key:     ((world, key) -&gt; new_world),
   on_click:   ((world, x, y) -&gt; new_world),
   on:         { foo: ((world, ...) -&gt; new_world), ... },
@@ -248,7 +248,7 @@ option to a function with the same api as <code>handle_keys</code>.</p>
 
   <span class="function"><span class="title">tick</span></span> = (t) -&gt;
     <span class="keyword">if</span> t - last &gt; <span class="number">1000</span> / fps
-      last = t; change opts.on_tick
+      last = t; change opts.on_tick, t
     draw()
     <span class="keyword">unless</span> done
       anim tick
