@@ -33,7 +33,7 @@
 
 <pre><code>File        : bigbang.coffee
 Maintainer  : Felix C. Stegerman &lt;flx@obfusk.net&gt;
-Date        : 2013-10-21
+Date        : 2013-10-23
 
 Copyright   : Copyright (C) 2013  Felix C. Stegerman
 Licence     : GPLv2 or GPLv3 or LGPLv3 or EPLv1</code></pre>
@@ -262,7 +262,7 @@ option to a function with the same api as <code>handle_keys</code>.</p>
   cancel_keys   = opts.on_key   &amp;&amp; hk opts.canvas, key  , opts.$
   cancel_click  = opts.on_click &amp;&amp; hc opts.canvas, click, opts.$
   setup_value   = opts.setup? opts.canvas, handlers
-  anim tick</pre></div></div>
+  draw(); anim tick</pre></div></div>
             
         </li>
         
