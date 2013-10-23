@@ -67,7 +67,7 @@ B.requestAnimationFrame = requestAnimationFrame =
 #       canvas:     element,
 #       fps:        int,
 #       world:      object,
-#       on_tick:    ((world) -> new_world),
+#       on_tick:    ((world, time) -> new_world),
 #       on_key:     ((world, key) -> new_world),
 #       on_click:   ((world, x, y) -> new_world),
 #       on:         { foo: ((world, ...) -> new_world), ... },
@@ -162,7 +162,7 @@ B.bigbang = (opts) ->                                           # {{{1
 
   tick = (t) ->
     if t - last > 1000 / fps
-      last = t; change opts.on_tick
+      last = t; change opts.on_tick, t
     draw()
     unless done
       anim tick
