@@ -2,10 +2,10 @@
 #
 # File        : bigbang_spec.coffee
 # Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-# Date        : 2013-10-21
+# Date        : 2014-04-03
 #
-# Copyright   : Copyright (C) 2013  Felix C. Stegerman
-# Licence     : GPLv2 or GPLv3 or LGPLv3 or EPLv1
+# Copyright   : Copyright (C) 2014  Felix C. Stegerman
+# Licence     : LGPLv3+
 #
 # --                                                            ; }}}1
 
