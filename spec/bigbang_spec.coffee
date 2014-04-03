@@ -352,9 +352,9 @@ describe 'measure_text', ->                                     # {{{1
     {w:aw,h:ah} = B.measure_text a...
     {w:bw,h:bh} = B.measure_text b...
     {w:cw,h:ch} = B.measure_text c...
-    between aw, 26, 30; between ah, 17, 23
-    between bw, 54, 58; between bh, 36, 43
-    between cw, 76, 94; between ch, 57, 65
+    between aw, 21, 30; between ah, 17, 23
+    between bw, 45, 59; between bh, 36, 43
+    between cw, 70, 96; between ch, 57, 65
                                                                 # }}}1
 
 # vim: set tw=70 sw=2 sts=2 et fdm=marker :
