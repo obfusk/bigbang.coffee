@@ -174,7 +174,7 @@ describe 'bigbang', ->                                          # {{{1
       teardown: t, on_stop: s, animate: anim
     foo 'hi'; bar '2', 'OK'; bar 37, 'y'; foo 'bye'; bar 'NO', 'NO'
                                                                 # }}}2
-  it 'works ticklessly', (done) ->                              # {{{2
+  it 'works ticklessly; returns state functions', (done) ->     # {{{2
     w = 0
     d = (n) -> (c) -> pix.push n
     f = (n, x) ->
@@ -203,10 +203,14 @@ describe 'bigbang', ->                                          # {{{1
                            ['t',['h_bar','h_foo']]]
       expect(pix).toEqual [0,1,2,4,42]
       expect($._data canvas[0], 'events').not.toBeDefined()
+      expect(bb.world()).toBe 42
+      expect(bb.done()).toBe true
       done()
-    bigbang
+    bb = bigbang
       tickless: true, canvas: canvas, world: w, to_draw: d, on: o,
       setup: u, teardown: t, on_stop: s
+    expect(bb.world()).toBe 0
+    expect(bb.done()).toBe false
     foo 'hi'; bar '2', 'OK'; bar 99, 'y'; foo 'bye'; bar 'NO', 'NO'
                                                                 # }}}2
                                                                 # }}}1

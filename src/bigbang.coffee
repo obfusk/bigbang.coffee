@@ -79,6 +79,7 @@ B.requestAnimationFrame = requestAnimationFrame =
 #       teardown:   ((canvas, handlers, setup_value) ->
 #                       teardown_value),
 #       on_stop:    ((world, teardown_value) -> ...)
+#     -> {world,done}
 #
 # Options:
 #
@@ -112,6 +113,12 @@ B.requestAnimationFrame = requestAnimationFrame =
 #     and can be used to cancel the event handling
 #   * (optional) `on_stop` is called after the universe has ended,
 #     after teardown
+#
+# Returns:
+#
+#   * `world` is a function that returns the current world
+#   * `done` is a function that returns whether the universe is
+#     stopped
 #
 # <!-- ... -->
 #
@@ -198,6 +205,8 @@ B.bigbang = (opts) ->                                           # {{{1
 
   draw world, done
   anim tick unless tickless
+
+  world: (-> world), done: (-> done)
                                                       #  <!-- }}}1 -->
 
 # stop the universe; see bigbang
