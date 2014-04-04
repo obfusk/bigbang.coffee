@@ -214,6 +214,7 @@ options and handler functions designated</p>
   <span class="hljs-attribute">canvas</span>:     element,
   <span class="hljs-attribute">fps</span>:        int,
   <span class="hljs-attribute">world</span>:      object,
+  <span class="hljs-attribute">tickless</span>:   boolean,
   <span class="hljs-attribute">on_tick</span>:    <span class="hljs-function"><span class="hljs-params">((world, time) -&gt; new_world)</span>,
   <span class="hljs-title">on_key</span>:     <span class="hljs-params">((world, key) -&gt; new_world)</span>,
   <span class="hljs-title">on_click</span>:   <span class="hljs-params">((world, x, y) -&gt; new_world)</span>,
@@ -228,8 +229,12 @@ options and handler functions designated</p>
 </code></pre><p>Options:</p>
 <ul>
 <li><code>canvas</code> is the HTML5 canvas to draw on</li>
-<li><code>fps</code> is the requested frame rate (defaults to 60)</li>
+<li><code>fps</code> is the requested frame rate; defaults to 60</li>
 <li><code>world</code> is the object representing the initial world</li>
+<li>(optional) <code>tickless</code> specifies whether events are processed
+directly, or whether there is a ticking clock and changes are
+queued and processed every clock tick (which calls <code>on_tick</code> at
+the requested frame rate); defaults to false</li>
 <li>(optional) <code>on_tick</code> is called every clock tick to update the
 world</li>
 <li>(optional) <code>on_key</code> is called every time a key is pressed to
@@ -260,8 +265,8 @@ after teardown</li>
 wish to “draw” the world with.  It can be (part of) the body of an
 event-driven page.  In this case, you will also have a different
 concept of “scene”.</p>
-<p>To stop the world from <code>on_tick</code> or <code>on_key</code>, return
-<code>stop_with(new_world)</code> instead of <code>new_world</code>.</p>
+<p>To stop the world from <code>on_tick</code> etc., return <code>stop_with(new_world)</code>
+instead of <code>new_world</code>.</p>
 <p>For details on key press handling, see <code>handle_keys</code>.  If you want
 to use a different key press handling library, set the <code>handle_keys</code>
 option to a function with the same api as <code>handle_keys</code>.</p>
@@ -271,20 +276,27 @@ option to a function with the same api as <code>handle_keys</code>.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>B.<span class="hljs-function"><span class="hljs-title">bigbang</span> = <span class="hljs-params">(opts)</span> -&gt;</span>                                           <span class="hljs-comment"># {{{1</span>
+  tickless    = opts.tickless
   anim        = opts.animate || requestAnimationFrame
   world       = opts.world
   fps         = opts.fps || <span class="hljs-number">60</span>
   done        = opts.stop_when?(world) || <span class="hljs-literal">false</span>
   last        = +<span class="hljs-keyword">new</span> Date
-  changes     = [{world,done}]
+  changes     = []
   setup_value = <span class="hljs-literal">null</span>
 
-  <span class="hljs-function"><span class="hljs-title">draw</span> = <span class="hljs-params">()</span> -&gt;</span>
+  <span class="hljs-keyword">if</span> tickless &amp;&amp; (opts.on_tick || opts.fps || opts.animate)
+    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error <span class="hljs-string">'tickless: incompatible option(s)'</span>
+
+  <span class="hljs-function"><span class="hljs-title">draw</span> = <span class="hljs-params">(w,d)</span> -&gt;</span>
+    <span class="hljs-keyword">if</span> d &amp;&amp; opts.last_draw
+      opts.last_draw(w)(opts.canvas)
+    <span class="hljs-keyword">else</span>
+      opts.to_draw(w)(opts.canvas)
+
+  <span class="hljs-function"><span class="hljs-title">draw_changes</span> = -&gt;</span>
     <span class="hljs-keyword">for</span> {<span class="hljs-attribute">world</span>:w,<span class="hljs-attribute">done</span>:d} <span class="hljs-keyword">in</span> changes
-      <span class="hljs-keyword">if</span> d &amp;&amp; opts.last_draw
-        opts.last_draw(w)(opts.canvas)
-      <span class="hljs-keyword">else</span>
-        opts.to_draw(w)(opts.canvas)
+      draw w, d
     changes = []
 
   <span class="hljs-function"><span class="hljs-title">change</span> = <span class="hljs-params">(f, args...)</span> -&gt;</span>
@@ -296,7 +308,11 @@ option to a function with the same api as <code>handle_keys</code>.</p>
     <span class="hljs-keyword">else</span>
       world = x
       done  = <span class="hljs-literal">true</span> <span class="hljs-keyword">if</span> opts.stop_when? world
-    changes.push {world,done}
+    <span class="hljs-keyword">if</span> tickless
+      draw world, done
+      finish() <span class="hljs-keyword">if</span> done
+    <span class="hljs-keyword">else</span>
+      changes.push {world,done}
 
   <span class="hljs-function"><span class="hljs-title">key</span>   = <span class="hljs-params">(k)</span> -&gt;</span> change opts.on_key, k
   <span class="hljs-function"><span class="hljs-title">click</span> = <span class="hljs-params">(x,y)</span> -&gt;</span> change opts.on_click, x, y
@@ -308,20 +324,25 @@ option to a function with the same api as <code>handle_keys</code>.</p>
   <span class="hljs-function"><span class="hljs-title">tick</span> = <span class="hljs-params">(t)</span> -&gt;</span>
     <span class="hljs-keyword">if</span> t - last &gt; <span class="hljs-number">1000</span> / fps
       last = t; change opts.on_tick, t
-    draw()
+    draw_changes()
     <span class="hljs-keyword">unless</span> done
       anim tick
     <span class="hljs-keyword">else</span>
-      cancel_keys?(); cancel_click?()
-      tv = opts.teardown? opts.canvas, handlers, setup_value
-      opts.on_stop? world, tv
+      finish()
+
+  <span class="hljs-function"><span class="hljs-title">finish</span> = -&gt;</span>
+    cancel_keys?(); cancel_click?()
+    tv = opts.teardown? opts.canvas, handlers, setup_value
+    opts.on_stop? world, tv
 
   hk            = opts.handle_keys  || handle_keys
   hc            = opts.handle_click || handle_click
   cancel_keys   = opts.on_key   &amp;&amp; hk opts.canvas, key  , opts.$
   cancel_click  = opts.on_click &amp;&amp; hc opts.canvas, click, opts.$
   setup_value   = opts.setup? opts.canvas, handlers
-  draw(); anim tick</pre></div></div>
+
+  draw world, done
+  anim tick <span class="hljs-keyword">unless</span> tickless</pre></div></div>
             
         </li>
         
