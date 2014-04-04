@@ -67,6 +67,7 @@ B.requestAnimationFrame = requestAnimationFrame =
 #       canvas:     element,
 #       fps:        int,
 #       world:      object,
+#       tickless:   boolean,
 #       on_tick:    ((world, time) -> new_world),
 #       on_key:     ((world, key) -> new_world),
 #       on_click:   ((world, x, y) -> new_world),
@@ -82,8 +83,12 @@ B.requestAnimationFrame = requestAnimationFrame =
 # Options:
 #
 #   * `canvas` is the HTML5 canvas to draw on
-#   * `fps` is the requested frame rate (defaults to 60)
+#   * `fps` is the requested frame rate; defaults to 60
 #   * `world` is the object representing the initial world
+#   * (optional) `tickless` specifies whether events are processed
+#     directly, or whether there is a ticking clock and changes are
+#     queued and processed every clock tick (which calls `on_tick` at
+#     the requested frame rate); defaults to false
 #   * (optional) `on_tick` is called every clock tick to update the
 #     world
 #   * (optional) `on_key` is called every time a key is pressed to
@@ -115,8 +120,8 @@ B.requestAnimationFrame = requestAnimationFrame =
 # event-driven page.  In this case, you will also have a different
 # concept of "scene".
 #
-# To stop the world from `on_tick` or `on_key`, return
-# `stop_with(new_world)` instead of `new_world`.
+# To stop the world from `on_tick` etc., return `stop_with(new_world)`
+# instead of `new_world`.
 #
 # For details on key press handling, see `handle_keys`.  If you want
 # to use a different key press handling library, set the `handle_keys`
@@ -126,20 +131,27 @@ B.requestAnimationFrame = requestAnimationFrame =
 #
 # <!-- }}}1 -->
 B.bigbang = (opts) ->                                           # {{{1
+  tickless    = opts.tickless
   anim        = opts.animate || requestAnimationFrame
   world       = opts.world
   fps         = opts.fps || 60
   done        = opts.stop_when?(world) || false
   last        = +new Date
-  changes     = [{world,done}]
+  changes     = []
   setup_value = null
 
-  draw = () ->
+  if tickless && (opts.on_tick || opts.fps || opts.animate)
+    throw new Error 'tickless: incompatible option(s)'
+
+  draw = (w,d) ->
+    if d && opts.last_draw
+      opts.last_draw(w)(opts.canvas)
+    else
+      opts.to_draw(w)(opts.canvas)
+
+  draw_changes = ->
     for {world:w,done:d} in changes
-      if d && opts.last_draw
-        opts.last_draw(w)(opts.canvas)
-      else
-        opts.to_draw(w)(opts.canvas)
+      draw w, d
     changes = []
 
   change = (f, args...) ->
@@ -151,7 +163,11 @@ B.bigbang = (opts) ->                                           # {{{1
     else
       world = x
       done  = true if opts.stop_when? world
-    changes.push {world,done}
+    if tickless
+      draw world, done
+      finish() if done
+    else
+      changes.push {world,done}
 
   key   = (k) -> change opts.on_key, k
   click = (x,y) -> change opts.on_click, x, y
@@ -163,20 +179,25 @@ B.bigbang = (opts) ->                                           # {{{1
   tick = (t) ->
     if t - last > 1000 / fps
       last = t; change opts.on_tick, t
-    draw()
+    draw_changes()
     unless done
       anim tick
     else
-      cancel_keys?(); cancel_click?()
-      tv = opts.teardown? opts.canvas, handlers, setup_value
-      opts.on_stop? world, tv
+      finish()
+
+  finish = ->
+    cancel_keys?(); cancel_click?()
+    tv = opts.teardown? opts.canvas, handlers, setup_value
+    opts.on_stop? world, tv
 
   hk            = opts.handle_keys  || handle_keys
   hc            = opts.handle_click || handle_click
   cancel_keys   = opts.on_key   && hk opts.canvas, key  , opts.$
   cancel_click  = opts.on_click && hc opts.canvas, click, opts.$
   setup_value   = opts.setup? opts.canvas, handlers
-  draw(); anim tick
+
+  draw world, done
+  anim tick unless tickless
                                                       #  <!-- }}}1 -->
 
 # stop the universe; see bigbang

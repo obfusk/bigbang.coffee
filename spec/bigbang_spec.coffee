@@ -174,6 +174,41 @@ describe 'bigbang', ->                                          # {{{1
       teardown: t, on_stop: s, animate: anim
     foo 'hi'; bar '2', 'OK'; bar 37, 'y'; foo 'bye'; bar 'NO', 'NO'
                                                                 # }}}2
+  it 'works ticklessly', (done) ->                              # {{{2
+    w = 0
+    d = (n) -> (c) -> pix.push n
+    f = (n, x) ->
+      log.push ['f',n,x]
+      if x == 'bye' then B.stop_with 42 else n + 1
+    g = (n, x, y) -> log.push ['g',n,x,y]; n * 2
+    o = foo: f, bar: g
+    u = (c,hs) ->
+      h_foo = (e) -> hs.foo e.x
+      h_bar = (e) -> hs.bar e.x, e.y
+      canvas.on 'foo', h_foo
+      canvas.on 'bar', h_bar
+      log.push ['u']; {h_foo,h_bar}
+    t = (c, hs, sv) ->
+      events = _.keys($._data canvas[0], 'events').sort()
+      expect(events).toEqual ['bar', 'foo']
+      canvas.off 'foo', sv.h_foo
+      canvas.off 'bar', sv.h_bar
+      log.push ['t',_.keys(sv).sort()]; 'teardown'
+    s = (n, tv) ->
+      expect(n).toBe 42
+      expect(tv).toBe 'teardown'
+      expect(log).toEqual [['u'],
+                           ['f',0,'hi'],['g',1,'2','OK'],
+                           ['g',2,99,'y'],['f',4,'bye'],
+                           ['t',['h_bar','h_foo']]]
+      expect(pix).toEqual [0,1,2,4,42]
+      expect($._data canvas[0], 'events').not.toBeDefined()
+      done()
+    bigbang
+      tickless: true, canvas: canvas, world: w, to_draw: d, on: o,
+      setup: u, teardown: t, on_stop: s
+    foo 'hi'; bar '2', 'OK'; bar 99, 'y'; foo 'bye'; bar 'NO', 'NO'
+                                                                # }}}2
                                                                 # }}}1
 
 describe 'empty_scene', ->
