@@ -33,7 +33,7 @@
 
 <pre><code>File        : bigbang.coffee
 Maintainer  : Felix C. Stegerman &lt;flx<span class="hljs-property">@obfusk</span>.net&gt;
-Date        : <span class="hljs-number">2014</span>-<span class="hljs-number">04</span>-<span class="hljs-number">03</span>
+Date        : <span class="hljs-number">2014</span>-<span class="hljs-number">04</span>-<span class="hljs-number">05</span>
 
 Copyright   : Copyright (C) <span class="hljs-number">2014</span>  Felix C. Stegerman
 Licence     : LGPLv3+
@@ -125,18 +125,19 @@ U = <span class="hljs-keyword">this</span>._ || <span class="hljs-built_in">requ
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
-              <p>requestAnimationFrame polyfill</p>
+              <p>requestAnimationFrame polyfill; the default delay is 17 milliseconds
+(ca. 60 fps)</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>B.polyRequestAnimationFrame = polyRequestAnimationFrame =       <span class="hljs-comment"># {{{1</span>
-  <span class="hljs-function"><span class="hljs-params">(delay = <span class="hljs-number">17</span>)</span> -&gt;</span>
-    <span class="hljs-built_in">console</span>.warn <span class="hljs-string">'polyfilling *RequestAnimationFrame ...'</span>
-    last = <span class="hljs-number">0</span>
+  <span class="hljs-function"><span class="hljs-params">(opts = {})</span> -&gt;</span>
+    <span class="hljs-built_in">console</span>.warn <span class="hljs-string">'polyfilling *RequestAnimationFrame ...'</span> <span class="hljs-keyword">if</span> opts.warn
+    delay = opts.delay || <span class="hljs-number">17</span>; next = <span class="hljs-number">0</span>
     <span class="hljs-function"><span class="hljs-params">(cb)</span> -&gt;</span>
       cur   = +<span class="hljs-keyword">new</span> Date
-      dt    = Math.max <span class="hljs-number">0</span>, delay - (cur - last)
-      last  = cur + dt
+      dt    = Math.max <span class="hljs-number">0</span>, delay - (cur - next)
+      next  = cur + dt
       <span class="hljs-built_in">window</span>.setTimeout (<span class="hljs-function">-&gt;</span> cb +<span class="hljs-keyword">new</span> Date), dt</pre></div></div>
             
         </li>
@@ -170,7 +171,7 @@ know: webkitRequestAnimationFrame uses floating point timestamps.</p>
             <div class="content"><div class='highlight'><pre>B.requestAnimationFrame = requestAnimationFrame =
   <span class="hljs-built_in">window</span>?.webkitRequestAnimationFrame ||
   <span class="hljs-built_in">window</span>?.mozRequestAnimationFrame ||
-  polyRequestAnimationFrame()</pre></div></div>
+  polyRequestAnimationFrame <span class="hljs-attribute">warn</span>: <span class="hljs-literal">true</span></pre></div></div>
             
         </li>
         
@@ -211,32 +212,46 @@ know: webkitRequestAnimationFrame uses floating point timestamps.</p>
 <p>big bang: start a new universe whose behaviour is specified by the
 options and handler functions designated</p>
 <pre><code>bigbang
-  <span class="hljs-attribute">canvas</span>:     element,
-  <span class="hljs-attribute">fps</span>:        int,
-  <span class="hljs-attribute">world</span>:      object,
-  <span class="hljs-attribute">tickless</span>:   boolean,
-  <span class="hljs-attribute">on_tick</span>:    <span class="hljs-function"><span class="hljs-params">((world, time) -&gt; new_world)</span>,
-  <span class="hljs-title">on_key</span>:     <span class="hljs-params">((world, key) -&gt; new_world)</span>,
-  <span class="hljs-title">on_click</span>:   <span class="hljs-params">((world, x, y) -&gt; new_world)</span>,
-  <span class="hljs-title">on</span>:         { <span class="hljs-title">foo</span>: <span class="hljs-params">((world, ...) -&gt; new_world)</span>, ... },
-  <span class="hljs-title">to_draw</span>:    <span class="hljs-params">((world) -&gt; scene)</span>,
-  <span class="hljs-title">stop_when</span>:  <span class="hljs-params">((world) -&gt; boolean)</span>,
-  <span class="hljs-title">last_draw</span>:  <span class="hljs-params">((world) -&gt; scene)</span>,
-  <span class="hljs-title">setup</span>:      <span class="hljs-params">((canvas, handlers) -&gt; setup_value)</span>,
-  <span class="hljs-title">teardown</span>:   <span class="hljs-params">((canvas, handlers, setup_value) -&gt;
+  <span class="hljs-attribute">world</span>:        object,
+  <span class="hljs-attribute">canvas</span>:       element|object,
+  <span class="hljs-attribute">to_draw</span>:      <span class="hljs-function"><span class="hljs-params">((world) -&gt; scene)</span>,
+  <span class="hljs-title">on_tick</span>:      <span class="hljs-params">((world, time) -&gt; new_world)</span>,
+  <span class="hljs-title">fps</span>:          <span class="hljs-title">int</span>,
+  <span class="hljs-title">queue</span>:        <span class="hljs-title">boolean</span>|<span class="hljs-title">int</span>,
+  <span class="hljs-title">animate</span>:      <span class="hljs-title">requestAnimationFrame</span>-<span class="hljs-title">like</span>-<span class="hljs-title">function</span>,
+  <span class="hljs-title">on_key</span>:       <span class="hljs-params">((world, key) -&gt; new_world)</span>,
+  <span class="hljs-title">on_click</span>:     <span class="hljs-params">((world, x, y) -&gt; new_world)</span>,
+  <span class="hljs-title">on</span>:           { <span class="hljs-title">foo</span>: <span class="hljs-params">((world, ...) -&gt; new_world)</span>, ... },
+  <span class="hljs-title">stop_when</span>:    <span class="hljs-params">((world) -&gt; boolean)</span>,
+  <span class="hljs-title">last_draw</span>:    <span class="hljs-params">((world) -&gt; scene)</span>,
+  <span class="hljs-title">setup</span>:        <span class="hljs-params">((canvas, handlers) -&gt; setup_value)</span>,
+  <span class="hljs-title">teardown</span>:     <span class="hljs-params">((canvas, handlers, setup_value) -&gt;
                   teardown_value)</span>,
-  <span class="hljs-title">on_stop</span>:    <span class="hljs-params">((world, teardown_value) -&gt; ...)</span></span>
+  <span class="hljs-title">on_stop</span>:      <span class="hljs-params">((world, teardown_value) -&gt; ...)</span>
+-&gt;</span> {get_world,get_done}
 </code></pre><p>Options:</p>
 <ul>
-<li><code>canvas</code> is the HTML5 canvas to draw on</li>
-<li><code>fps</code> is the requested frame rate; defaults to 60</li>
 <li><code>world</code> is the object representing the initial world</li>
-<li>(optional) <code>tickless</code> specifies whether events are processed
-directly, or whether there is a ticking clock and changes are
-queued and processed every clock tick (which calls <code>on_tick</code> at
-the requested frame rate); defaults to false</li>
-<li>(optional) <code>on_tick</code> is called every clock tick to update the
-world</li>
+<li><code>canvas</code> is the HTML5 canvas (or equivalent) to draw on</li>
+<li><p><code>to_draw</code> is called every time a new world needs to be drawn</p>
+</li>
+<li><p>(optional) <code>on_tick</code></p>
+<ul>
+<li>when passed, the universe is in “clock mode”: all changes are
+queued (unless <code>queue</code> is <code>false</code>) and drawing happens every
+actual clock tick (usually approx. 60 fps); <code>on_tick</code> is called
+every “virtual” clock tick (as determined by <code>fps</code>)</li>
+<li>otherwise, events are processed immediately (by updating the
+world and re-drawing the scene)</li>
+</ul>
+</li>
+<li>(optional) <code>fps</code> is the requested frame rate; defaults to 60</li>
+<li>(optional) <code>queue</code> when set to <code>false</code>, disables queueing in
+“clock mode”; when set to an <code>int</code>, restricts the queue size to
+that number of items (e.g. to draw every actual tick and ignore
+all but the last world, set this to <code>1</code>)</li>
+<li>(optional) <code>animate</code> the requestAnimationFrame-like function to
+use as the clock in “clock mode”</li>
 <li>(optional) <code>on_key</code> is called every time a key is pressed to
 update the world</li>
 <li>(optional) <code>on_click</code> is called every time the mouse is clicked
@@ -245,7 +260,6 @@ inside the canvas to update the world</li>
 <code>setup</code> and <code>teardown</code> are used to connect handlers to elements
 and events; when the user-defined event is triggered, the
 appropriate function is called</li>
-<li><code>to_draw</code> is called every time a new world needs to be drawn</li>
 <li>(optional) <code>stop_when</code> is called to determine if the universe
 needs to stop</li>
 <li>(optional) <code>last_draw</code> is called instead of <code>to_draw</code> to draw
@@ -258,6 +272,12 @@ before on_stop; the handlers are the same as passed to <code>setup</code>
 and can be used to cancel the event handling</li>
 <li>(optional) <code>on_stop</code> is called after the universe has ended,
 after teardown</li>
+</ul>
+<p>Returns:</p>
+<ul>
+<li><code>get_world</code> is a function that returns the current world</li>
+<li><code>get_done</code> is a function that returns whether the universe is
+stopped</li>
 </ul>
 <!-- ... -->
 
@@ -276,23 +296,23 @@ option to a function with the same api as <code>handle_keys</code>.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>B.<span class="hljs-function"><span class="hljs-title">bigbang</span> = <span class="hljs-params">(opts)</span> -&gt;</span>                                           <span class="hljs-comment"># {{{1</span>
-  tickless    = opts.tickless
-  anim        = opts.animate || requestAnimationFrame
-  world       = opts.world
-  fps         = opts.fps || <span class="hljs-number">60</span>
-  done        = opts.stop_when?(world) || <span class="hljs-literal">false</span>
-  last        = +<span class="hljs-keyword">new</span> Date
-  changes     = []
-  setup_value = <span class="hljs-literal">null</span>
+  tickless      = !opts.on_tick
+  queue         = opts.queue ? <span class="hljs-literal">true</span>
+  anim          = opts.animate || requestAnimationFrame
+  world         = opts.world
+  delay         = <span class="hljs-number">1000</span> / (opts.fps || <span class="hljs-number">60</span>)
+  delay_margin  = delay / <span class="hljs-number">17</span>                                    <span class="hljs-comment">#  ???</span>
+  done          = opts.stop_when?(world) || <span class="hljs-literal">false</span>
+  next          = +<span class="hljs-keyword">new</span> Date + delay
+  changes       = []
+  setup_value   = <span class="hljs-literal">null</span>
 
-  <span class="hljs-keyword">if</span> tickless &amp;&amp; (opts.on_tick || opts.fps || opts.animate)
-    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error <span class="hljs-string">'tickless: incompatible option(s)'</span>
+  <span class="hljs-keyword">if</span> tickless &amp;&amp; (opts.queue? || opts.fps || opts.animate)
+    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error <span class="hljs-string">'queue, fps and animate require on_tick'</span>
 
   <span class="hljs-function"><span class="hljs-title">draw</span> = <span class="hljs-params">(w,d)</span> -&gt;</span>
-    <span class="hljs-keyword">if</span> d &amp;&amp; opts.last_draw
-      opts.last_draw(w)(opts.canvas)
-    <span class="hljs-keyword">else</span>
-      opts.to_draw(w)(opts.canvas)
+    f = <span class="hljs-keyword">if</span> d &amp;&amp; opts.last_draw <span class="hljs-keyword">then</span> opts.last_draw <span class="hljs-keyword">else</span> opts.to_draw
+    f(w)(opts.canvas)
 
   <span class="hljs-function"><span class="hljs-title">draw_changes</span> = -&gt;</span>
     <span class="hljs-keyword">for</span> {<span class="hljs-attribute">world</span>:w,<span class="hljs-attribute">done</span>:d} <span class="hljs-keyword">in</span> changes
@@ -308,11 +328,23 @@ option to a function with the same api as <code>handle_keys</code>.</p>
     <span class="hljs-keyword">else</span>
       world = x
       done  = <span class="hljs-literal">true</span> <span class="hljs-keyword">if</span> opts.stop_when? world
-    <span class="hljs-keyword">if</span> tickless
+    <span class="hljs-keyword">if</span> !tickless &amp;&amp; queue
+      changes.shift() <span class="hljs-keyword">if</span> changes.length == queue  <span class="hljs-comment"># != true is OK</span>
+      changes.push {world,done}
+    <span class="hljs-keyword">else</span>
       draw world, done
       finish() <span class="hljs-keyword">if</span> done
+
+  s = +<span class="hljs-keyword">new</span> Date
+
+  <span class="hljs-function"><span class="hljs-title">tick</span> = <span class="hljs-params">(t)</span> -&gt;</span>
+    <span class="hljs-keyword">if</span> t &gt;= next - delay_margin
+      next += delay; change opts.on_tick, t
+    draw_changes() <span class="hljs-keyword">if</span> queue
+    <span class="hljs-keyword">if</span> done
+      finish() <span class="hljs-keyword">if</span> queue
     <span class="hljs-keyword">else</span>
-      changes.push {world,done}
+      anim tick
 
   <span class="hljs-function"><span class="hljs-title">key</span>   = <span class="hljs-params">(k)</span> -&gt;</span> change opts.on_key, k
   <span class="hljs-function"><span class="hljs-title">click</span> = <span class="hljs-params">(x,y)</span> -&gt;</span> change opts.on_click, x, y
@@ -320,15 +352,6 @@ option to a function with the same api as <code>handle_keys</code>.</p>
   handlers = {}
   <span class="hljs-keyword">for</span> k, v <span class="hljs-keyword">of</span> opts.<span class="hljs-literal">on</span> || {}
     <span class="hljs-keyword">do</span> <span class="hljs-function"><span class="hljs-params">(k,v)</span> -&gt;</span> handlers[k] = <span class="hljs-function"><span class="hljs-params">(args...)</span> -&gt;</span> change v, args...
-
-  <span class="hljs-function"><span class="hljs-title">tick</span> = <span class="hljs-params">(t)</span> -&gt;</span>
-    <span class="hljs-keyword">if</span> t - last &gt; <span class="hljs-number">1000</span> / fps
-      last = t; change opts.on_tick, t
-    draw_changes()
-    <span class="hljs-keyword">unless</span> done
-      anim tick
-    <span class="hljs-keyword">else</span>
-      finish()
 
   <span class="hljs-function"><span class="hljs-title">finish</span> = -&gt;</span>
     cancel_keys?(); cancel_click?()
@@ -342,7 +365,9 @@ option to a function with the same api as <code>handle_keys</code>.</p>
   setup_value   = opts.setup? opts.canvas, handlers
 
   draw world, done
-  anim tick <span class="hljs-keyword">unless</span> tickless</pre></div></div>
+  anim tick <span class="hljs-keyword">unless</span> tickless
+
+  <span class="hljs-attribute">world</span>: (<span class="hljs-function">-&gt;</span> world), <span class="hljs-attribute">done</span>: (<span class="hljs-function">-&gt;</span> done)</pre></div></div>
             
         </li>
         
