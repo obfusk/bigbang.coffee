@@ -4,10 +4,11 @@
 #
 #     File        : bigbang.coffee
 #     Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-#     Date        : 2014-04-05
+#     Date        : 2014-04-07
 #
 #     Copyright   : Copyright (C) 2014  Felix C. Stegerman
 #     Licence     : LGPLv3+
+#     Version     : v0.2.0
 #
 # <!-- }}}1
 ###

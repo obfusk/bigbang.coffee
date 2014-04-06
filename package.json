@@ -1,12 +1,12 @@
 {
   "name"            : "bigbang",
   "homepage"        : "https://github.com/obfusk/bigbang.coffee",
-  "description"     : "...",
+  "description"     : "graphical/evented functional programming for js/coffee",
 
-  "version"         : "0.0.1-SNAPSHOT",
+  "version"         : "0.2.0",
   "author"          : "Felix C. Stegerman <flx@obfusk.net>",
 
-  "keywords"        : [ "..." ],
+  "keywords"        : [ "fp", "bigbang", "evented", "functional", "games" ],
 
   "licenses": [
     { "type"        : "LGPLv3+",

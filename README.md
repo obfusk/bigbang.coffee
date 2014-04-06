@@ -2,10 +2,10 @@
 
     File        : README.md
     Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-    Date        : 2014-04-03
+    Date        : 2014-04-07
 
     Copyright   : Copyright (C) 2014  Felix C. Stegerman
-    Version     : v0.0.1-SNAPSHOT
+    Version     : v0.2.0
 
 []: }}}1
 
@@ -19,31 +19,40 @@
   or javascript using plain mathematical functions; inspired by the
   2htdp library for racket.
 
+  &rarr; [annotated source](http://obfusk.github.io/bigbang.coffee)
+
 []: }}}1
 
 ## Examples
 []: {{{1
 
-See http://obfusk.github.io/bigbang.coffee for the annotated source
-with examples.
+### bigbang-examples
 
-[]: {{{2
+bigbang.coffee examples
 
-```coffee
-...
-```
+&rarr; https://github.com/obfusk/bigbang-examples
+<br/>
+&rarr; http://bigbang-examples.herokuapp.com
 
-[]: }}}2
+### bigbang-snake
+
+snake game w/ bigbang.coffee
+
+&rarr; https://github.com/obfusk/bigbang-snake
+<br/>
+&rarr; http://bigbang-snake.herokuapp.com
 
 []: }}}1
 
 ## Specs & Docs
 []: {{{1
 
-    $ rake spec
-    $ rake docs
+```bash
+$ rake spec
+$ rake docs
+```
 
-NB: to run the specs, you need the jasmine gem (>= 2.0.0.rc4).
+NB: to run the specs, you need the jasmine gem (>= 2.0.0).
 
 []: }}}1
 
