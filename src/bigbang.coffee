@@ -4,7 +4,7 @@
 #
 #     File        : bigbang.coffee
 #     Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-#     Date        : 2014-04-03
+#     Date        : 2014-04-05
 #
 #     Copyright   : Copyright (C) 2014  Felix C. Stegerman
 #     Licence     : LGPLv3+
@@ -34,15 +34,16 @@ if exports? then module.exports = B else this.bigbang = B
 # requestAnimationFrame & polyfill
 # --------------------------------
 
-# requestAnimationFrame polyfill
+# requestAnimationFrame polyfill; the default delay is 17 milliseconds
+# (ca. 60 fps)
 B.polyRequestAnimationFrame = polyRequestAnimationFrame =       # {{{1
-  (delay = 17) ->
-    console.warn 'polyfilling *RequestAnimationFrame ...'
-    last = 0
+  (opts = {}) ->
+    console.warn 'polyfilling *RequestAnimationFrame ...' if opts.warn
+    delay = opts.delay || 17; next = 0
     (cb) ->
       cur   = +new Date
-      dt    = Math.max 0, delay - (cur - last)
-      last  = cur + dt
+      dt    = Math.max 0, delay - (cur - next)
+      next  = cur + dt
       window.setTimeout (-> cb +new Date), dt
                                                       #  <!-- }}}1 -->
 
@@ -52,7 +53,7 @@ B.polyRequestAnimationFrame = polyRequestAnimationFrame =       # {{{1
 B.requestAnimationFrame = requestAnimationFrame =
   window?.webkitRequestAnimationFrame ||
   window?.mozRequestAnimationFrame ||
-  polyRequestAnimationFrame()
+  polyRequestAnimationFrame warn: true
 
 
 # bigbang & stop_with
@@ -64,34 +65,44 @@ B.requestAnimationFrame = requestAnimationFrame =
 # options and handler functions designated
 #
 #     bigbang
-#       canvas:     element,
-#       fps:        int,
-#       world:      object,
-#       tickless:   boolean,
-#       on_tick:    ((world, time) -> new_world),
-#       on_key:     ((world, key) -> new_world),
-#       on_click:   ((world, x, y) -> new_world),
-#       on:         { foo: ((world, ...) -> new_world), ... },
-#       to_draw:    ((world) -> scene),
-#       stop_when:  ((world) -> boolean),
-#       last_draw:  ((world) -> scene),
-#       setup:      ((canvas, handlers) -> setup_value),
-#       teardown:   ((canvas, handlers, setup_value) ->
+#       world:        object,
+#       canvas:       element|object,
+#       to_draw:      ((world) -> scene),
+#       on_tick:      ((world, time) -> new_world),
+#       fps:          int,
+#       queue:        boolean|int,
+#       animate:      requestAnimationFrame-like-function,
+#       on_key:       ((world, key) -> new_world),
+#       on_click:     ((world, x, y) -> new_world),
+#       on:           { foo: ((world, ...) -> new_world), ... },
+#       stop_when:    ((world) -> boolean),
+#       last_draw:    ((world) -> scene),
+#       setup:        ((canvas, handlers) -> setup_value),
+#       teardown:     ((canvas, handlers, setup_value) ->
 #                       teardown_value),
-#       on_stop:    ((world, teardown_value) -> ...)
-#     -> {world,done}
+#       on_stop:      ((world, teardown_value) -> ...)
+#     -> {get_world,get_done}
 #
 # Options:
 #
-#   * `canvas` is the HTML5 canvas to draw on
-#   * `fps` is the requested frame rate; defaults to 60
 #   * `world` is the object representing the initial world
-#   * (optional) `tickless` specifies whether events are processed
-#     directly, or whether there is a ticking clock and changes are
-#     queued and processed every clock tick (which calls `on_tick` at
-#     the requested frame rate); defaults to false
-#   * (optional) `on_tick` is called every clock tick to update the
-#     world
+#   * `canvas` is the HTML5 canvas (or equivalent) to draw on
+#   * `to_draw` is called every time a new world needs to be drawn
+#
+#   * (optional) `on_tick`
+#     - when passed, the universe is in "clock mode": all changes are
+#     queued (unless `queue` is `false`) and drawing happens every
+#     actual clock tick (usually approx. 60 fps); `on_tick` is called
+#     every "virtual" clock tick (as determined by `fps`)
+#     - otherwise, events are processed immediately (by updating the
+#     world and re-drawing the scene)
+#   * (optional) `fps` is the requested frame rate; defaults to 60
+#   * (optional) `queue` when set to `false`, disables queueing in
+#     "clock mode"; when set to an `int`, restricts the queue size to
+#     that number of items (e.g. to draw every actual tick and ignore
+#     all but the last world, set this to `1`)
+#   * (optional) `animate` the requestAnimationFrame-like function to
+#     use as the clock in "clock mode"
 #   * (optional) `on_key` is called every time a key is pressed to
 #     update the world
 #   * (optional) `on_click` is called every time the mouse is clicked
@@ -100,7 +111,6 @@ B.requestAnimationFrame = requestAnimationFrame =
 #     `setup` and `teardown` are used to connect handlers to elements
 #     and events; when the user-defined event is triggered, the
 #     appropriate function is called
-#   * `to_draw` is called every time a new world needs to be drawn
 #   * (optional) `stop_when` is called to determine if the universe
 #     needs to stop
 #   * (optional) `last_draw` is called instead of `to_draw` to draw
@@ -116,8 +126,8 @@ B.requestAnimationFrame = requestAnimationFrame =
 #
 # Returns:
 #
-#   * `world` is a function that returns the current world
-#   * `done` is a function that returns whether the universe is
+#   * `get_world` is a function that returns the current world
+#   * `get_done` is a function that returns whether the universe is
 #     stopped
 #
 # <!-- ... -->
@@ -138,23 +148,23 @@ B.requestAnimationFrame = requestAnimationFrame =
 #
 # <!-- }}}1 -->
 B.bigbang = (opts) ->                                           # {{{1
-  tickless    = opts.tickless
-  anim        = opts.animate || requestAnimationFrame
-  world       = opts.world
-  fps         = opts.fps || 60
-  done        = opts.stop_when?(world) || false
-  last        = +new Date
-  changes     = []
-  setup_value = null
+  tickless      = !opts.on_tick
+  queue         = opts.queue ? true
+  anim          = opts.animate || requestAnimationFrame
+  world         = opts.world
+  delay         = 1000 / (opts.fps || 60)
+  delay_margin  = delay / 17                                    #  ???
+  done          = opts.stop_when?(world) || false
+  next          = +new Date + delay
+  changes       = []
+  setup_value   = null
 
-  if tickless && (opts.on_tick || opts.fps || opts.animate)
-    throw new Error 'tickless: incompatible option(s)'
+  if tickless && (opts.queue? || opts.fps || opts.animate)
+    throw new Error 'queue, fps and animate require on_tick'
 
   draw = (w,d) ->
-    if d && opts.last_draw
-      opts.last_draw(w)(opts.canvas)
-    else
-      opts.to_draw(w)(opts.canvas)
+    f = if d && opts.last_draw then opts.last_draw else opts.to_draw
+    f(w)(opts.canvas)
 
   draw_changes = ->
     for {world:w,done:d} in changes
@@ -170,11 +180,23 @@ B.bigbang = (opts) ->                                           # {{{1
     else
       world = x
       done  = true if opts.stop_when? world
-    if tickless
+    if !tickless && queue
+      changes.shift() if changes.length == queue  # != true is OK
+      changes.push {world,done}
+    else
       draw world, done
       finish() if done
+
+  s = +new Date
+
+  tick = (t) ->
+    if t >= next - delay_margin
+      next += delay; change opts.on_tick, t
+    draw_changes() if queue
+    if done
+      finish() if queue
     else
-      changes.push {world,done}
+      anim tick
 
   key   = (k) -> change opts.on_key, k
   click = (x,y) -> change opts.on_click, x, y
@@ -182,15 +204,6 @@ B.bigbang = (opts) ->                                           # {{{1
   handlers = {}
   for k, v of opts.on || {}
     do (k,v) -> handlers[k] = (args...) -> change v, args...
-
-  tick = (t) ->
-    if t - last > 1000 / fps
-      last = t; change opts.on_tick, t
-    draw_changes()
-    unless done
-      anim tick
-    else
-      finish()
 
   finish = ->
     cancel_keys?(); cancel_click?()

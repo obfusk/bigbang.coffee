@@ -2,7 +2,7 @@
 #
 # File        : bigbang_spec.coffee
 # Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-# Date        : 2014-04-03
+# Date        : 2014-04-05
 #
 # Copyright   : Copyright (C) 2014  Felix C. Stegerman
 # Licence     : LGPLv3+
@@ -11,6 +11,7 @@
 
 B     = bigbang
 anim  = B.polyRequestAnimationFrame()
+anim8 = B.polyRequestAnimationFrame delay: 125
 
 between = (x, m, n) ->
   expect(x).toBeGreaterThan m
@@ -40,178 +41,236 @@ describe 'bigbang', ->                                          # {{{1
   click = trig 'click', (e, ox, oy) -> e.offsetX = ox; e.offsetY = oy
   foo = trig 'foo', (e, x) -> e.x = x
   bar = trig 'bar', (e, x, y) -> e.x = x; e.y = y
-  beforeEach ->
-    canvas  = $('<canvas>').css width: '400px', height: '300px'
-    log     = []
-    pix     = []
-  it 'can count from 0 to 9; ticking, checking and drawing',    # {{{2
-    (done) ->
+
+  beforeEach (done) ->
+    anim ->
+      canvas  = $('<canvas>').css width: '400px', height: '300px'
+      log     = []
+      pix     = []
+      done()
+
+  describe 'works as advertised:', ->
+
+    it 'can count from 0 to 9; ticking, checking and drawing',  # {{{2
+      (done) ->
+        w = 0
+        t = (n) -> log.push ['t',n]; n + 1
+        q = (n) -> log.push ['q',n]; n == 9
+        d = (n) -> (c) -> c.push n
+        s = (n) ->
+          expect(n).toBe 9
+          expect(log).toEqual [['q',0],['t',0],['q',1],['t',1],
+                               ['q',2],['t',2],['q',3],['t',3],
+                               ['q',4],['t',4],['q',5],['t',5],
+                               ['q',6],['t',6],['q',7],['t',7],
+                               ['q',8],['t',8],['q',9]]
+          expect(pix).toEqual [0..9]
+          done()
+        bigbang
+          world: w, canvas: pix, on_tick: t, stop_when: q, to_draw: d,
+          on_stop: s, animate: anim
+                                                                # }}}2
+    it 'takes ~2 secs to do 40 ticks at 20 fps', (done) ->      # {{{2
       w = 0
-      t = (n) -> log.push ['t',n]; n + 1
-      q = (n) -> log.push ['q',n]; n == 9
+      t = (n) -> n + 1
+      q = (n) -> n == 40
+      d = (n) -> (c) -> null
+      s = (n) ->
+        between Math.round((+new Date - t1) / 100), 18, 25  # ~2 secs
+        done()
+      t1 = +new Date
+      bigbang
+        world: w, canvas: pix, on_tick: t, stop_when: q, to_draw: d,
+        on_stop: s, fps: 20, animate: anim
+                                                                # }}}2
+    it 'can stop_with', (done) ->                               # {{{2
+      w = 0
+      t = (n) ->
+        log.push ['t',n]
+        if n == 6 then B.stop_with 99 else n + 1
+      d = (n) -> (c) -> c.push n
+      s = (n) ->
+        expect(n).toBe 99
+        expect(log).toEqual [['t',0],['t',1],['t',2],['t',3],
+                             ['t',4],['t',5],['t',6]]
+        expect(pix).toEqual [0..6].concat [99]
+        done()
+      bigbang
+        world: w, canvas: pix, on_tick: t, to_draw: d, on_stop: s,
+        animate: anim
+                                                                # }}}2
+    it 'uses last_draw', (done) ->                              # {{{2
+      w = 0
+      t = (n) -> if n == 6 then B.stop_with 99 else n + 1
+      d = (n) -> (c) -> c.push n
+      l = (n) -> (c) -> c.push -n
+      s = (n) ->
+        expect(n).toBe 99
+        expect(pix).toEqual [0..6].concat [-99]
+        done()
+      bigbang
+        world: w, canvas: pix, on_tick: t, to_draw: d, last_draw: l,
+        on_stop: s, animate: anim
+                                                                # }}}2
+    it 'returns state functions', (done) ->                     # {{{2
+      w = 0
+      t = (n) -> n + 1
+      q = (n) -> n == 9
       d = (n) -> (c) -> c.push n
       s = (n) ->
         expect(n).toBe 9
-        expect(log).toEqual [['q',0],['t',0],['q',1],['t',1],
-                             ['q',2],['t',2],['q',3],['t',3],
-                             ['q',4],['t',4],['q',5],['t',5],
-                             ['q',6],['t',6],['q',7],['t',7],
-                             ['q',8],['t',8],['q',9]]
         expect(pix).toEqual [0..9]
+        expect(bb.world()).toBe 9
+        expect(bb.done()).toBe true
+        done()
+      bb = bigbang
+        world: w, canvas: pix, on_tick: t, stop_when: q, to_draw: d,
+        on_stop: s, animate: anim
+      expect(bb.world()).toBe 0
+      expect(bb.done()).toBe false
+                                                                # }}}2
+
+  describe 'handles keys, clicks and other events:', ->
+    it 'handles keys (tickless) and cleans up', (done) ->       # {{{2
+      w = 0
+      d = (n) -> (c) -> pix.push n
+      k = (n, k) ->
+        log.push [n,k]
+        if k == 'space' then B.stop_with 99 else n + 1
+      s = (n) ->
+        expect(n).toBe 99
+        expect(log).toEqual [[0,'a'],[1,'z'],[2,'TAB'],[3,'space']]
+        expect(pix).toEqual [0,1,2,3,99]
+        expect($._data canvas[0], 'events').not.toBeDefined()
         done()
       bigbang
-        canvas: pix, world: w, on_tick: t, stop_when: q, to_draw: d,
-        on_stop: s, animate: anim
+        world: w, canvas: canvas, to_draw: d, on_key: k, on_stop: s
+      key 65; key -1; key 90; key 9, true; key 32; key 48
                                                                 # }}}2
-  it 'takes ~2 secs to do 40 ticks at 20 fps', (done) ->        # {{{2
-    w = 0
-    t = (n) -> n + 1
-    q = (n) -> n == 40
-    d = (n) -> (c) -> null
-    s = (n) ->
-      between Math.round((+new Date - t1) / 100), 18, 25
-      done()
-    t1 = +new Date
-    bigbang
-      canvas: pix, world: w, on_tick: t, stop_when: q, to_draw: d,
-      on_stop: s, animate: anim, fps: 20
+    it 'handles clicks (tickless) and cleans up', (done) ->     # {{{2
+      w = 0
+      d = (n) -> (c) -> pix.push n
+      c = (n, x, y) ->
+        log.push [n,x,y]
+        if _.isEqual [x,y], [37,42] then B.stop_with 99 else n + 1
+      s = (n) ->
+        expect(n).toBe 99
+        expect(log).toEqual [[0,10,7],[1,7,10],[2,100,100],[3,37,42]]
+        expect(pix).toEqual [0,1,2,3,99]
+        expect($._data canvas[0], 'events').not.toBeDefined()
+        done()
+      bigbang
+        world: w, canvas: canvas, to_draw: d, on_click: c, on_stop: s
+      click 10, 7; click 7, 10; click 100, 100; click 37, 42
                                                                 # }}}2
-  it 'can stop_with', (done) ->                                 # {{{2
-    w = 0
-    t = (n) ->
-      log.push ['t',n]
-      if n == 6 then B.stop_with 99 else n + 1
-    d = (n) -> (c) -> c.push n
-    s = (n) ->
-      expect(n).toBe 99
-      expect(log).toEqual [['t',0],['t',1],['t',2],['t',3],
-                           ['t',4],['t',5],['t',6]]
-      expect(pix).toEqual [0..6].concat [99]
-      done()
-    bigbang
-      canvas: pix, world: w, on_tick: t, to_draw: d, on_stop: s,
-      animate: anim
+    it 'handles on (tickless); uses setup, teardown', (done) -> # {{{2
+      w = 0
+      d = (n) -> (c) -> pix.push n
+      f = (n, x) ->
+        log.push ['f',n,x]
+        if x == 'bye' then B.stop_with 99 else n + 1
+      g = (n, x, y) -> log.push ['g',n,x,y]; n * 2
+      o = foo: f, bar: g
+      u = (c,hs) ->
+        h_foo = (e) -> hs.foo e.x
+        h_bar = (e) -> hs.bar e.x, e.y
+        canvas.on 'foo', h_foo
+        canvas.on 'bar', h_bar
+        log.push ['u']; {h_foo,h_bar}
+      t = (c, hs, sv) ->
+        events = _.keys($._data canvas[0], 'events').sort()
+        expect(events).toEqual ['bar', 'foo']
+        canvas.off 'foo', sv.h_foo
+        canvas.off 'bar', sv.h_bar
+        log.push ['t',_.keys(sv).sort()]; 'teardown'
+      s = (n, tv) ->
+        expect(n).toBe 99
+        expect(tv).toBe 'teardown'
+        expect(log).toEqual [['u'],
+                             ['f',0,'hi'],['g',1,'2','OK'],
+                             ['g',2,37,'y'],['f',4,'bye'],
+                             ['t',['h_bar','h_foo']]]
+        expect(pix).toEqual [0,1,2,4,99]
+        expect($._data canvas[0], 'events').not.toBeDefined()
+        done()
+      bigbang
+        world: w, canvas: canvas, to_draw: d, on: o, setup: u,
+        teardown: t, on_stop: s
+      foo 'hi'; bar '2', 'OK'; bar 37, 'y'; foo 'bye'; bar 'NO', 'NO'
                                                                 # }}}2
-  it 'uses last_draw', (done) ->                                # {{{2
-    w = 0
-    t = (n) -> if n == 6 then B.stop_with 99 else n + 1
-    d = (n) -> (c) -> c.push n
-    l = (n) -> (c) -> c.push -n
-    s = (n) ->
-      expect(n).toBe 99
-      expect(pix).toEqual [0..6].concat [-99]
-      done()
-    bigbang
-      canvas: pix, world: w, on_tick: t, to_draw: d, last_draw: l,
-      on_stop: s, animate: anim
+
+  describe 'queues:', ->
+    beforeEach (done) -> anim8 -> done()
+
+    it 'queue works w/ keys [if timing OK]', (done) ->          # {{{2
+      ts  = []
+      w   = 0
+      t   = (n) -> log.push n; n + 1
+      k   = (n, k) -> log.push [n,k]; n + 2
+      d   = (n) -> (c) -> pix.push n; ts.push +new Date
+      q   = (n) -> n >= 12
+      s   = (n) ->
+        ds = ts.map (x) -> x - ts[0]
+        expect(log).toEqual [[0,'a'],[2,'b'],4,5,6,[7,'y'],[9,'z'],11]
+        expect(pix).toEqual [0,2,4,5,6,7,9,11,12]
+        expect(Math.abs(ds[1] - 125)).toBeLessThan 20
+        expect(Math.abs(ds[2] - 125)).toBeLessThan 20
+        expect(Math.abs(ds[6] - 875)).toBeLessThan 20
+        expect(Math.abs(ds[7] - 875)).toBeLessThan 20
+        expect(ts[2] - ts[1]).toBeLessThan 5
+        expect(ts[7] - ts[6]).toBeLessThan 5
+        done()
+      bigbang
+        world: w, canvas: canvas, on_tick: t, on_key: k, stop_when: q,
+        to_draw: d, on_stop: s, fps: 4, animate: anim8
+      setTimeout (-> key 65),  50
+      setTimeout (-> key 66),  80
+      setTimeout (-> key 89), 795
+      setTimeout (-> key 90), 825
                                                                 # }}}2
-  it 'handles keys and cleans up', (done) ->                    # {{{2
-    w = 0
-    d = (n) -> (c) -> pix.push n
-    k = (n, k) ->
-      log.push [n,k]
-      if k == 'space' then B.stop_with 99 else n + 1
-    s = (n) ->
-      expect(n).toBe 99
-      expect(log).toEqual [[0,'a'],[1,'z'],[2,'TAB'],[3,'space']]
-      expect(pix).toEqual [0,1,2,3,99]
-      expect($._data canvas[0], 'events').not.toBeDefined()
-      done()
-    bigbang
-      canvas: canvas, world: w, to_draw: d, on_key: k, on_stop: s,
-      animate: anim
-    key 65; key -1; key 90; key 9, true; key 32; key 48
+    it 'queue:false works w/ keys [if timing OK]', (done) ->    # {{{2
+      ts  = []
+      w   = 0
+      t   = (n) -> log.push n; n + 1
+      k   = (n, k) -> log.push [n,k]; n + 2
+      d   = (n) -> (c) -> pix.push n; ts.push +new Date
+      q   = (n) -> n >= 12
+      s   = (n) ->
+        ds = ts.map (x) -> x - ts[0]
+        expect(log).toEqual [[0,'a'],[2,'b'],4,5,6,[7,'y'],[9,'z'],11]
+        expect(pix).toEqual [0,2,4,5,6,7,9,11,12]
+        expect(Math.abs(ds[1] -  50)).toBeLessThan 20
+        expect(Math.abs(ds[2] -  80)).toBeLessThan 20
+        expect(Math.abs(ds[6] - 795)).toBeLessThan 20
+        expect(Math.abs(ds[7] - 825)).toBeLessThan 20
+        expect(Math.abs(ts[2] - ts[1])).toBeLessThan 50
+        expect(Math.abs(ts[7] - ts[6])).toBeLessThan 50
+        done()
+      bigbang
+        world: w, canvas: canvas, on_tick: t, on_key: k, stop_when: q,
+        to_draw: d, on_stop: s, fps: 4, queue: false, animate: anim8
+      setTimeout (-> key 65),  50
+      setTimeout (-> key 66),  80
+      setTimeout (-> key 89), 795
+      setTimeout (-> key 90), 825
                                                                 # }}}2
-  it 'handles clicks and cleans up', (done) ->                  # {{{2
-    w = 0
-    d = (n) -> (c) -> pix.push n
-    c = (n, x, y) ->
-      log.push [n,x,y]
-      if _.isEqual [x,y], [37,42] then B.stop_with 99 else n + 1
-    s = (n) ->
-      expect(n).toBe 99
-      expect(log).toEqual [[0,10,7],[1,7,10],[2,100,100],[3,37,42]]
-      expect(pix).toEqual [0,1,2,3,99]
-      expect($._data canvas[0], 'events').not.toBeDefined()
-      done()
-    bigbang
-      canvas: canvas, world: w, to_draw: d, on_click: c, on_stop: s,
-      animate: anim
-    click 10, 7; click 7, 10; click 100, 100; click 37, 42
-                                                                # }}}2
-  it 'handles on; uses setup, teardown', (done) ->              # {{{2
-    w = 0
-    d = (n) -> (c) -> pix.push n
-    f = (n, x) ->
-      log.push ['f',n,x]
-      if x == 'bye' then B.stop_with 99 else n + 1
-    g = (n, x, y) -> log.push ['g',n,x,y]; n * 2
-    o = foo: f, bar: g
-    u = (c,hs) ->
-      h_foo = (e) -> hs.foo e.x
-      h_bar = (e) -> hs.bar e.x, e.y
-      canvas.on 'foo', h_foo
-      canvas.on 'bar', h_bar
-      log.push ['u']; {h_foo,h_bar}
-    t = (c, hs, sv) ->
-      events = _.keys($._data canvas[0], 'events').sort()
-      expect(events).toEqual ['bar', 'foo']
-      canvas.off 'foo', sv.h_foo
-      canvas.off 'bar', sv.h_bar
-      log.push ['t',_.keys(sv).sort()]; 'teardown'
-    s = (n, tv) ->
-      expect(n).toBe 99
-      expect(tv).toBe 'teardown'
-      expect(log).toEqual [['u'],
-                           ['f',0,'hi'],['g',1,'2','OK'],
-                           ['g',2,37,'y'],['f',4,'bye'],
-                           ['t',['h_bar','h_foo']]]
-      expect(pix).toEqual [0,1,2,4,99]
-      expect($._data canvas[0], 'events').not.toBeDefined()
-      done()
-    bigbang
-      canvas: canvas, world: w, to_draw: d, on: o, setup: u,
-      teardown: t, on_stop: s, animate: anim
-    foo 'hi'; bar '2', 'OK'; bar 37, 'y'; foo 'bye'; bar 'NO', 'NO'
-                                                                # }}}2
-  it 'works ticklessly; returns state functions', (done) ->     # {{{2
-    w = 0
-    d = (n) -> (c) -> pix.push n
-    f = (n, x) ->
-      log.push ['f',n,x]
-      if x == 'bye' then B.stop_with 42 else n + 1
-    g = (n, x, y) -> log.push ['g',n,x,y]; n * 2
-    o = foo: f, bar: g
-    u = (c,hs) ->
-      h_foo = (e) -> hs.foo e.x
-      h_bar = (e) -> hs.bar e.x, e.y
-      canvas.on 'foo', h_foo
-      canvas.on 'bar', h_bar
-      log.push ['u']; {h_foo,h_bar}
-    t = (c, hs, sv) ->
-      events = _.keys($._data canvas[0], 'events').sort()
-      expect(events).toEqual ['bar', 'foo']
-      canvas.off 'foo', sv.h_foo
-      canvas.off 'bar', sv.h_bar
-      log.push ['t',_.keys(sv).sort()]; 'teardown'
-    s = (n, tv) ->
-      expect(n).toBe 42
-      expect(tv).toBe 'teardown'
-      expect(log).toEqual [['u'],
-                           ['f',0,'hi'],['g',1,'2','OK'],
-                           ['g',2,99,'y'],['f',4,'bye'],
-                           ['t',['h_bar','h_foo']]]
-      expect(pix).toEqual [0,1,2,4,42]
-      expect($._data canvas[0], 'events').not.toBeDefined()
-      expect(bb.world()).toBe 42
-      expect(bb.done()).toBe true
-      done()
-    bb = bigbang
-      tickless: true, canvas: canvas, world: w, to_draw: d, on: o,
-      setup: u, teardown: t, on_stop: s
-    expect(bb.world()).toBe 0
-    expect(bb.done()).toBe false
-    foo 'hi'; bar '2', 'OK'; bar 99, 'y'; foo 'bye'; bar 'NO', 'NO'
+    it 'queue:1 works w/ keys [if timing OK]', (done) ->        # {{{2
+      w   = 0
+      t   = (n) -> log.push n; n + 1
+      k   = (n, k) -> log.push [n,k]; n + 2
+      d   = (n) -> (c) -> pix.push n
+      q   = (n) -> n >= 12
+      s   = (n) ->
+        expect(log).toEqual [[0,'a'],[2,'b'],4,5,6,[7,'y'],[9,'z'],11]
+        expect(pix).toEqual [0,4,5,6,7,11,12]
+        done()
+      bigbang
+        world: w, canvas: canvas, on_tick: t, on_key: k, stop_when: q,
+        to_draw: d, on_stop: s, fps: 4, queue: 1, animate: anim8
+      setTimeout (-> key 65),  50
+      setTimeout (-> key 66),  80
+      setTimeout (-> key 89), 795
+      setTimeout (-> key 90), 825
                                                                 # }}}2
                                                                 # }}}1
 
