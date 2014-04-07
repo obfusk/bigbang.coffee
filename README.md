@@ -28,10 +28,6 @@
 ## Examples
 []: {{{1
 
-### bigbang-examples
-
-  bigbang.coffee examples
-
   &rarr; https://github.com/obfusk/bigbang-examples
   <br/>
   &rarr; http://bigbang-examples.herokuapp.com
