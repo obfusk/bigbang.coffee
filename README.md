@@ -30,19 +30,19 @@
 
 ### bigbang-examples
 
-bigbang.coffee examples
+  bigbang.coffee examples
 
-&rarr; https://github.com/obfusk/bigbang-examples
-<br/>
-&rarr; http://bigbang-examples.herokuapp.com
+  &rarr; https://github.com/obfusk/bigbang-examples
+  <br/>
+  &rarr; http://bigbang-examples.herokuapp.com
 
 ### bigbang-snake
 
-snake game w/ bigbang.coffee
+  snake game w/ bigbang.coffee
 
-&rarr; https://github.com/obfusk/bigbang-snake
-<br/>
-&rarr; http://bigbang-snake.herokuapp.com
+  &rarr; https://github.com/obfusk/bigbang-snake
+  <br/>
+  &rarr; http://bigbang-snake.herokuapp.com
 
 []: }}}1
 
@@ -54,7 +54,7 @@ $ rake spec
 $ rake docs
 ```
 
-NB: to run the specs, you need the jasmine gem (>= 2.0.0).
+  NB: to run the specs, you need the jasmine gem (>= 2.0.0).
 
 []: }}}1
 
