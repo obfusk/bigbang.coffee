@@ -9,6 +9,8 @@
 
 []: }}}1
 
+[![NPM version](https://badge.fury.io/js/bigbang.svg)](https://badge.fury.io/js/bigbang)
+
 ## Description
 []: {{{1
 
