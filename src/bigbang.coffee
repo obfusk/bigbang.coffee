@@ -173,7 +173,7 @@ B.bigbang = (opts) ->                                           # {{{1
     changes = []
 
   change = (f, args...) ->
-    return if done || !f
+    return if done || !U.isFunction f
     x = f world, args...
     if x instanceof _Stop
       world = x.world
