@@ -33,11 +33,11 @@
 
 <pre><code>File        : bigbang.coffee
 Maintainer  : Felix C. Stegerman &lt;flx<span class="hljs-property">@obfusk</span>.net&gt;
-Date        : <span class="hljs-number">2014</span>-<span class="hljs-number">04</span>-<span class="hljs-number">07</span>
+Date        : <span class="hljs-number">2014</span>-<span class="hljs-number">07</span>-<span class="hljs-number">18</span>
 
 Copyright   : Copyright (C) <span class="hljs-number">2014</span>  Felix C. Stegerman
 Licence     : LGPLv3+
-Version     : v0<span class="hljs-number">.2</span><span class="hljs-number">.0</span>
+Version     : v0<span class="hljs-number">.2</span><span class="hljs-number">.1</span>
 </code></pre><!-- }}}1
 ##
 -->
@@ -90,7 +90,7 @@ or javascript using plain mathematical functions; inspired by the
             <div class="content"><div class='highlight'><pre>
 U = <span class="hljs-keyword">this</span>._ || <span class="hljs-built_in">require</span> <span class="hljs-string">'underscore'</span>
 <span class="hljs-function"><span class="hljs-title">B</span> = -&gt;</span> B.bigbang arguments...
-<span class="hljs-keyword">if</span> <span class="hljs-built_in">exports</span>? <span class="hljs-keyword">then</span> <span class="hljs-built_in">module</span>.<span class="hljs-built_in">exports</span> = B <span class="hljs-keyword">else</span> <span class="hljs-keyword">this</span>.bigbang = B</pre></div></div>
+<span class="hljs-keyword">if</span> exports? <span class="hljs-keyword">then</span> <span class="hljs-built_in">module</span>.exports = B <span class="hljs-keyword">else</span> <span class="hljs-keyword">this</span>.bigbang = B</pre></div></div>
             
         </li>
         
@@ -285,8 +285,20 @@ stopped</li>
 <p>The canvas need not be an actual canvas: it can be any element you
 wish to “draw” the world with.  It can be (part of) the body of an
 event-driven page.  In this case, you will also have a different
-concept of “scene”.</p>
-<p>To stop the world from <code>on_tick</code> etc., return <code>stop_with(new_world)</code>
+concept of “scene”.  For more on “scenes”, see <code>mk_scene</code>.</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>To stop the world from <code>on_tick</code> etc., return <code>stop_with(new_world)</code>
 instead of <code>new_world</code>.</p>
 <p>For details on key press handling, see <code>handle_keys</code>.  If you want
 to use a different key press handling library, set the <code>handle_keys</code>
@@ -313,7 +325,7 @@ option to a function with the same api as <code>handle_keys</code>.</p>
 
   <span class="hljs-function"><span class="hljs-title">draw</span> = <span class="hljs-params">(w,d)</span> -&gt;</span>
     f = <span class="hljs-keyword">if</span> d &amp;&amp; opts.last_draw <span class="hljs-keyword">then</span> opts.last_draw <span class="hljs-keyword">else</span> opts.to_draw
-    f(w)(opts.canvas)
+    draw_scene(f w) opts.canvas
 
   <span class="hljs-function"><span class="hljs-title">draw_changes</span> = -&gt;</span>
     <span class="hljs-keyword">for</span> {<span class="hljs-attribute">world</span>:w,<span class="hljs-attribute">done</span>:d} <span class="hljs-keyword">in</span> changes
@@ -321,7 +333,7 @@ option to a function with the same api as <code>handle_keys</code>.</p>
     changes = []
 
   <span class="hljs-function"><span class="hljs-title">change</span> = <span class="hljs-params">(f, args...)</span> -&gt;</span>
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">if</span> done || !f
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">if</span> done || !U.isFunction f
     x = f world, args...
     <span class="hljs-keyword">if</span> x <span class="hljs-keyword">instanceof</span> _Stop
       world = x.world
@@ -373,11 +385,11 @@ option to a function with the same api as <code>handle_keys</code>.</p>
         </li>
         
         
-        <li id="section-13">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
                <!-- }}}1 -->
 
@@ -386,11 +398,11 @@ option to a function with the same api as <code>handle_keys</code>.</p>
         </li>
         
         
-        <li id="section-14">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
+                <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
               <p>stop the universe; see bigbang</p>
 
@@ -401,11 +413,11 @@ option to a function with the same api as <code>handle_keys</code>.</p>
         </li>
         
         
-        <li id="section-15">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-15">&#182;</a>
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <p>wrapper class for stop_with</p>
 
@@ -418,26 +430,14 @@ B._Stop = _Stop</pre></div></div>
         </li>
         
         
-        <li id="section-16">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-16">&#182;</a>
-              </div>
-              <h2 id="scene-functions">scene functions</h2>
-
-            </div>
-            
-        </li>
-        
-        
         <li id="section-17">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
-              
+              <h2 id="abstract-scene-functions">abstract scene functions</h2>
+
             </div>
             
         </li>
@@ -449,12 +449,8 @@ B._Stop = _Stop</pre></div></div>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
-              <p>empty scene</p>
-
+              
             </div>
-            
-            <div class="content"><div class='highlight'><pre>B.empty_scene = <span class="hljs-function"><span class="hljs-title">empty_scene</span> = <span class="hljs-params">(width, height)</span> -&gt;</span> <span class="hljs-function"><span class="hljs-params">(canvas)</span> -&gt;</span>
-  canvas.width = width; canvas.height = height</pre></div></div>
             
         </li>
         
@@ -465,13 +461,100 @@ B._Stop = _Stop</pre></div></div>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-19">&#182;</a>
               </div>
+              <p>make a scene</p>
+<p>A “scene” is a function that takes a “canvas” and “draws” on it.</p>
+<p>A “non-recursive scene” is a “scene” that also takes a second
+argument specifying whether any “lower scene” should also be drawn
+by it and has a property <code>lower_scene</code> that holds the “lower scene”.
+This allows <code>draw_scene</code> to draw multiple scenes using iteration
+instead of recursion.</p>
+<p><code>mk_scene</code> takes a “non-recursive (lower) scene” and a “regular
+scene” and turns the “regular scene” into a “non-recursive scene”
+that draws the “lower scene” when needed.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>B.mk_scene = <span class="hljs-function"><span class="hljs-title">mk_scene</span> = <span class="hljs-params">(scene, f)</span> -&gt;</span>
+  <span class="hljs-function"><span class="hljs-title">g</span> = <span class="hljs-params">(canvas, draw_lower = <span class="hljs-literal">true</span>)</span> -&gt;</span> scene? canvas <span class="hljs-keyword">if</span> draw_lower; f canvas
+  g.lower_scene = scene; g</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>draw a scene</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>B.draw_scene = <span class="hljs-function"><span class="hljs-title">draw_scene</span> = <span class="hljs-params">(scene)</span> -&gt;</span> <span class="hljs-function"><span class="hljs-params">(canvas)</span> -&gt;</span>
+  <span class="hljs-keyword">if</span> (s = scene).lower_scene
+    scenes = [scene]; scenes.push s <span class="hljs-keyword">while</span> s = s.lower_scene
+    scenes.reverse(); s canvas, <span class="hljs-literal">false</span> <span class="hljs-keyword">for</span> s <span class="hljs-keyword">in</span> scenes; <span class="hljs-literal">null</span>
+  <span class="hljs-keyword">else</span>
+    scene canvas</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <h2 id="html5-canvas-scene-functions">HTML5 canvas scene functions</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>empty scene</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>B.empty_scene = <span class="hljs-function"><span class="hljs-title">empty_scene</span> = <span class="hljs-params">(width, height)</span> -&gt;</span> mk_scene <span class="hljs-literal">null</span>, <span class="hljs-function"><span class="hljs-params">(canvas)</span> -&gt;</span>
+  canvas.width = width; canvas.height = height</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
               <p>text with center at coordinates</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>B.place_text = place_text =                                     <span class="hljs-comment"># {{{1</span>
-  <span class="hljs-function"><span class="hljs-params">(string, x, y, fontsize, colour, scene, $ = <span class="hljs-built_in">window</span>.$)</span> -&gt;</span> <span class="hljs-function"><span class="hljs-params">(canvas)</span> -&gt;</span>
-    scene canvas
+  <span class="hljs-function"><span class="hljs-params">(string, x, y, fontsize, colour, scene, $ = <span class="hljs-built_in">window</span>.$)</span> -&gt;</span> \
+  mk_scene scene, <span class="hljs-function"><span class="hljs-params">(canvas)</span> -&gt;</span>
     ctx = canvas.getContext <span class="hljs-string">'2d'</span>
     ctx.save()
     ctx.font          = <span class="hljs-string">"<span class="hljs-subst">#{fontsize}</span> sans-serif"</span>
@@ -484,11 +567,11 @@ B._Stop = _Stop</pre></div></div>
         </li>
         
         
-        <li id="section-20">
+        <li id="section-25">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-20">&#182;</a>
+                <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
                <!-- }}}1 -->
 
@@ -497,31 +580,31 @@ B._Stop = _Stop</pre></div></div>
         </li>
         
         
-        <li id="section-21">
+        <li id="section-26">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-21">&#182;</a>
+                <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
               <p>image with center at coordinates</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>B.place_image = <span class="hljs-function"><span class="hljs-title">place_image</span> = <span class="hljs-params">(image, x, y, scene)</span> -&gt;</span> <span class="hljs-function"><span class="hljs-params">(canvas)</span> -&gt;</span>
-  scene canvas
-  ctx = canvas.getContext <span class="hljs-string">'2d'</span>
-  x_  = x - Math.round(image.width  / <span class="hljs-number">2</span>)
-  y_  = y - Math.round(image.height / <span class="hljs-number">2</span>)
-  ctx.drawImage image, x_, y_</pre></div></div>
+            <div class="content"><div class='highlight'><pre>B.place_image = <span class="hljs-function"><span class="hljs-title">place_image</span> = <span class="hljs-params">(image, x, y, scene)</span> -&gt;</span>
+  mk_scene scene, <span class="hljs-function"><span class="hljs-params">(canvas)</span> -&gt;</span>
+    ctx = canvas.getContext <span class="hljs-string">'2d'</span>
+    x_  = x - Math.round(image.width  / <span class="hljs-number">2</span>)
+    y_  = y - Math.round(image.height / <span class="hljs-number">2</span>)
+    ctx.drawImage image, x_, y_</pre></div></div>
             
         </li>
         
         
-        <li id="section-22">
+        <li id="section-27">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-22">&#182;</a>
+                <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
               <p>… TODO: more scene and image functions …</p>
 
@@ -530,11 +613,11 @@ B._Stop = _Stop</pre></div></div>
         </li>
         
         
-        <li id="section-23">
+        <li id="section-28">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-23">&#182;</a>
+                <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
               <h2 id="keyboard-functions">keyboard functions</h2>
 
@@ -543,11 +626,11 @@ B._Stop = _Stop</pre></div></div>
         </li>
         
         
-        <li id="section-24">
+        <li id="section-29">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-24">&#182;</a>
+                <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
               
             </div>
@@ -555,11 +638,11 @@ B._Stop = _Stop</pre></div></div>
         </li>
         
         
-        <li id="section-25">
+        <li id="section-30">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
+                <a class="pilcrow" href="#section-30">&#182;</a>
               </div>
               <!-- {{{1 -->
 
@@ -592,11 +675,11 @@ chromium, for both US English and German keyboard layouts.  YMMV.</p>
         </li>
         
         
-        <li id="section-26">
+        <li id="section-31">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-26">&#182;</a>
+                <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
                <!-- }}}1 -->
 
@@ -605,11 +688,11 @@ chromium, for both US English and German keyboard layouts.  YMMV.</p>
         </li>
         
         
-        <li id="section-27">
+        <li id="section-32">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-27">&#182;</a>
+                <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
               <p>Turn keypress into something usable: a-z without shift is returned
 as “a”-“z”; A-Z with shift is returned as “A”-“Z”; 0-9 without shift
@@ -638,11 +721,11 @@ with shift (e.g. “HOME”).</p>
         </li>
         
         
-        <li id="section-28">
+        <li id="section-33">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-28">&#182;</a>
+                <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
                <!-- }}}1 -->
 
@@ -651,11 +734,11 @@ with shift (e.g. “HOME”).</p>
         </li>
         
         
-        <li id="section-29">
+        <li id="section-34">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
+                <a class="pilcrow" href="#section-34">&#182;</a>
               </div>
               <p>key codes</p>
 
@@ -669,11 +752,11 @@ with shift (e.g. “HOME”).</p>
         </li>
         
         
-        <li id="section-30">
+        <li id="section-35">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-30">&#182;</a>
+                <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
               <p>key ranges</p>
 
@@ -685,90 +768,13 @@ with shift (e.g. “HOME”).</p>
         </li>
         
         
-        <li id="section-31">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-31">&#182;</a>
-              </div>
-              <h2 id="mouse-functions">mouse functions</h2>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-32">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-32">&#182;</a>
-              </div>
-              
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-33">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-33">&#182;</a>
-              </div>
-              <p>Handle mouse clicks.  Listens to click on elem, calls f with the
-{x,y}; returns a function that cancels the listening.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>B.handle_click = <span class="hljs-function"><span class="hljs-title">handle_click</span> = <span class="hljs-params">(elem, f, $ = <span class="hljs-built_in">window</span>.$)</span> -&gt;</span>
-  <span class="hljs-function"><span class="hljs-title">h</span> = <span class="hljs-params">(e)</span> -&gt;</span> {x,y} = mouse_position e; f x, y; <span class="hljs-literal">false</span>
-  $(elem).<span class="hljs-literal">on</span> <span class="hljs-string">'click'</span>, h<span class="hljs-function">
-  -&gt;</span> $(elem).<span class="hljs-literal">off</span> <span class="hljs-string">'click'</span>, h</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-34">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-34">&#182;</a>
-              </div>
-              <p>relative mouse position; returns {x,y}</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>B.mouse_position = mouse_position =                             <span class="hljs-comment"># {{{1</span>
-  <span class="hljs-function"><span class="hljs-params">(event, elem = event.target, $ = <span class="hljs-built_in">window</span>.$, cache = {})</span> -&gt;</span>
-    e            = $(elem)
-    cache.left  ?= (e.outerWidth()  - e.width() ) / <span class="hljs-number">2</span>
-    cache.top   ?= (e.outerHeight() - e.height()) / <span class="hljs-number">2</span>
-    <span class="hljs-attribute">x</span>: event.offsetX - cache.left, <span class="hljs-attribute">y</span>: event.offsetY - cache.top</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-35">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-35">&#182;</a>
-              </div>
-               <!-- }}}1 -->
-
-            </div>
-            
-        </li>
-        
-        
         <li id="section-36">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
-              <h2 id="miscellaneous-functions">miscellaneous functions</h2>
+              <h2 id="mouse-functions">mouse functions</h2>
 
             </div>
             
@@ -793,6 +799,70 @@ with shift (e.g. “HOME”).</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
+              <p>Handle mouse clicks.  Listens to click on elem, calls f with the
+{x,y}; returns a function that cancels the listening.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>B.handle_click = <span class="hljs-function"><span class="hljs-title">handle_click</span> = <span class="hljs-params">(elem, f, $ = <span class="hljs-built_in">window</span>.$)</span> -&gt;</span>
+  <span class="hljs-function"><span class="hljs-title">h</span> = <span class="hljs-params">(e)</span> -&gt;</span> {x,y} = mouse_position e; f x, y; <span class="hljs-literal">false</span>
+  $(elem).<span class="hljs-literal">on</span> <span class="hljs-string">'click'</span>, h<span class="hljs-function">
+  -&gt;</span> $(elem).<span class="hljs-literal">off</span> <span class="hljs-string">'click'</span>, h</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-39">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-39">&#182;</a>
+              </div>
+              <p>relative mouse position; returns {x,y}</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>B.mouse_position = <span class="hljs-function"><span class="hljs-title">mouse_position</span> =
+  <span class="hljs-params">(event, elem = event.target, $ = <span class="hljs-built_in">window</span>.$, cache = {})</span> -&gt;</span>
+    e            = $(elem)
+    cache.left  ?= (e.outerWidth()  - e.width() ) / <span class="hljs-number">2</span>
+    cache.top   ?= (e.outerHeight() - e.height()) / <span class="hljs-number">2</span>
+    <span class="hljs-attribute">x</span>: event.offsetX - cache.left, <span class="hljs-attribute">y</span>: event.offsetY - cache.top</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-40">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-40">&#182;</a>
+              </div>
+              <h2 id="miscellaneous-functions">miscellaneous functions</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-41">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-41">&#182;</a>
+              </div>
+              
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-42">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-42">&#182;</a>
+              </div>
               <p>measure text height and width using a temporary hidden div;
 returns {w:width,h:height}</p>
 
@@ -812,11 +882,11 @@ measure_text.cache = {}</pre></div></div>
         </li>
         
         
-        <li id="section-39">
+        <li id="section-43">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-39">&#182;</a>
+                <a class="pilcrow" href="#section-43">&#182;</a>
               </div>
                <!-- }}}1 -->
 
@@ -825,11 +895,11 @@ measure_text.cache = {}</pre></div></div>
         </li>
         
         
-        <li id="section-40">
+        <li id="section-44">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-40">&#182;</a>
+                <a class="pilcrow" href="#section-44">&#182;</a>
               </div>
               <!-- vim: set tw=70 sw=2 sts=2 et fdm=marker : -->
 
