@@ -4,11 +4,11 @@
 #
 #     File        : bigbang.coffee
 #     Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-#     Date        : 2014-04-07
+#     Date        : 2014-07-18
 #
 #     Copyright   : Copyright (C) 2014  Felix C. Stegerman
 #     Licence     : LGPLv3+
-#     Version     : v0.2.0
+#     Version     : v0.2.1
 #
 # <!-- }}}1
 ###
@@ -136,8 +136,8 @@ B.requestAnimationFrame = requestAnimationFrame =
 # The canvas need not be an actual canvas: it can be any element you
 # wish to "draw" the world with.  It can be (part of) the body of an
 # event-driven page.  In this case, you will also have a different
-# concept of "scene".
-#
+# concept of "scene".  For more on "scenes", see `mk_scene`.
+
 # To stop the world from `on_tick` etc., return `stop_with(new_world)`
 # instead of `new_world`.
 #
@@ -165,7 +165,7 @@ B.bigbang = (opts) ->                                           # {{{1
 
   draw = (w,d) ->
     f = if d && opts.last_draw then opts.last_draw else opts.to_draw
-    f(w)(opts.canvas)
+    draw_scene(f w) opts.canvas
 
   draw_changes = ->
     for {world:w,done:d} in changes
@@ -232,17 +232,46 @@ class _Stop
 B._Stop = _Stop
 
 
-# scene functions
-# ---------------
+# abstract scene functions
+# ------------------------
+
+# make a scene
+#
+# A "scene" is a function that takes a "canvas" and "draws" on it.
+#
+# A "non-recursive scene" is a "scene" that also takes a second
+# argument specifying whether any "lower scene" should also be drawn
+# by it and has a property `lower_scene` that holds the "lower scene".
+# This allows `draw_scene` to draw multiple scenes using iteration
+# instead of recursion.
+#
+# `mk_scene` takes a "non-recursive (lower) scene" and a "regular
+# scene" and turns the "regular scene" into a "non-recursive scene"
+# that draws the "lower scene" when needed.
+B.mk_scene = mk_scene = (scene, f) ->
+  g = (canvas, draw_lower = true) -> scene? canvas if draw_lower; f canvas
+  g.lower_scene = scene; g
+
+# draw a scene
+B.draw_scene = draw_scene = (scene) -> (canvas) ->
+  if (s = scene).lower_scene
+    scenes = [scene]; scenes.push s while s = s.lower_scene
+    scenes.reverse(); s canvas, false for s in scenes; null
+  else
+    scene canvas
+
+
+# HTML5 canvas scene functions
+# ----------------------------
 
 # empty scene
-B.empty_scene = empty_scene = (width, height) -> (canvas) ->
+B.empty_scene = empty_scene = (width, height) -> mk_scene null, (canvas) ->
   canvas.width = width; canvas.height = height
 
 # text with center at coordinates
 B.place_text = place_text =                                     # {{{1
-  (string, x, y, fontsize, colour, scene, $ = window.$) -> (canvas) ->
-    scene canvas
+  (string, x, y, fontsize, colour, scene, $ = window.$) -> \
+  mk_scene scene, (canvas) ->
     ctx = canvas.getContext '2d'
     ctx.save()
     ctx.font          = "#{fontsize} sans-serif"
@@ -254,12 +283,12 @@ B.place_text = place_text =                                     # {{{1
                                                       #  <!-- }}}1 -->
 
 # image with center at coordinates
-B.place_image = place_image = (image, x, y, scene) -> (canvas) ->
-  scene canvas
-  ctx = canvas.getContext '2d'
-  x_  = x - Math.round(image.width  / 2)
-  y_  = y - Math.round(image.height / 2)
-  ctx.drawImage image, x_, y_
+B.place_image = place_image = (image, x, y, scene) ->
+  mk_scene scene, (canvas) ->
+    ctx = canvas.getContext '2d'
+    x_  = x - Math.round(image.width  / 2)
+    y_  = y - Math.round(image.height / 2)
+    ctx.drawImage image, x_, y_
 
 # ... TODO: more scene and image functions ...
 
@@ -339,13 +368,12 @@ B.handle_click = handle_click = (elem, f, $ = window.$) ->
   -> $(elem).off 'click', h
 
 # relative mouse position; returns {x,y}
-B.mouse_position = mouse_position =                             # {{{1
+B.mouse_position = mouse_position =
   (event, elem = event.target, $ = window.$, cache = {}) ->
     e            = $(elem)
     cache.left  ?= (e.outerWidth()  - e.width() ) / 2
     cache.top   ?= (e.outerHeight() - e.height()) / 2
     x: event.offsetX - cache.left, y: event.offsetY - cache.top
-                                                      #  <!-- }}}1 -->
 
 
 # miscellaneous functions
