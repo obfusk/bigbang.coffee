@@ -137,7 +137,7 @@ B.requestAnimationFrame = requestAnimationFrame =
 # wish to "draw" the world with.  It can be (part of) the body of an
 # event-driven page.  In this case, you will also have a different
 # concept of "scene".  For more on "scenes", see `mk_scene`.
-
+#
 # To stop the world from `on_tick` etc., return `stop_with(new_world)`
 # instead of `new_world`.
 #
