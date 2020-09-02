@@ -4,9 +4,9 @@
 #
 #     File        : bigbang.coffee
 #     Maintainer  : Felix C. Stegerman <flx@obfusk.net>
-#     Date        : 2014-07-18
+#     Date        : 2020-09-02
 #
-#     Copyright   : Copyright (C) 2014  Felix C. Stegerman
+#     Copyright   : Copyright (C) 2020  Felix C. Stegerman
 #     Licence     : LGPLv3+
 #     Version     : v0.2.1
 #
@@ -52,6 +52,7 @@ B.polyRequestAnimationFrame = polyRequestAnimationFrame =       # {{{1
 # requestAnimationFrame itself uses relative timestamps; also good to
 # know: webkitRequestAnimationFrame uses floating point timestamps.
 B.requestAnimationFrame = requestAnimationFrame =
+  window?.requestAnimationFrame ||
   window?.webkitRequestAnimationFrame ||
   window?.mozRequestAnimationFrame ||
   polyRequestAnimationFrame warn: true
