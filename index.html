@@ -5,7 +5,7 @@
   <title>bigbang.coffee</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
-  <link rel="stylesheet" media="all" href="docco.css" />
+  <link rel="stylesheet" media="all" href="../docco.css" />
 </head>
 <body>
   <div id="container">
@@ -32,13 +32,13 @@
 {{{1 -->
 
 <pre><code>File        : bigbang.coffee
-Maintainer  : Felix C. Stegerman &lt;flx<span class="hljs-property">@obfusk</span>.net&gt;
-Date        : <span class="hljs-number">2014</span>-<span class="hljs-number">07</span>-<span class="hljs-number">18</span>
+Maintainer  : Felix C. Stegerman &lt;flx@obfusk.net&gt;
+<span class="hljs-built_in">Date</span>        : <span class="hljs-number">2020</span><span class="hljs-number">-09</span><span class="hljs-number">-02</span>
 
-Copyright   : Copyright (C) <span class="hljs-number">2014</span>  Felix C. Stegerman
+Copyright   : Copyright (C) <span class="hljs-number">2020</span>  Felix C. Stegerman
 Licence     : LGPLv3+
-Version     : v0<span class="hljs-number">.2</span><span class="hljs-number">.1</span>
-</code></pre><!-- }}}1
+Version     : v0<span class="hljs-number">.2</span><span class="hljs-number">.1</span></code></pre>
+<!-- }}}1
 ##
 -->
 
@@ -71,7 +71,7 @@ or javascript using plain mathematical functions; inspired by the
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <h2 id="underscore-exports">underscore + exports</h2>
+              <h2 id="underscore--exports">underscore + exports</h2>
 
             </div>
             
@@ -88,9 +88,9 @@ or javascript using plain mathematical functions; inspired by the
             </div>
             
             <div class="content"><div class='highlight'><pre>
-U = <span class="hljs-keyword">this</span>._ || <span class="hljs-built_in">require</span> <span class="hljs-string">'underscore'</span>
-<span class="hljs-function"><span class="hljs-title">B</span> = -&gt;</span> B.bigbang arguments...
-<span class="hljs-keyword">if</span> exports? <span class="hljs-keyword">then</span> <span class="hljs-built_in">module</span>.exports = B <span class="hljs-keyword">else</span> <span class="hljs-keyword">this</span>.bigbang = B</pre></div></div>
+U = <span class="hljs-built_in">this</span>._ || <span class="hljs-built_in">require</span> <span class="hljs-string">&#x27;underscore&#x27;</span>
+<span class="hljs-function"><span class="hljs-title">B</span> = -&gt;</span> B.bigbang <span class="hljs-built_in">arguments</span>...
+<span class="hljs-keyword">if</span> <span class="hljs-built_in">exports</span>? <span class="hljs-keyword">then</span> <span class="hljs-built_in">module</span>.<span class="hljs-built_in">exports</span> = B <span class="hljs-keyword">else</span> <span class="hljs-built_in">this</span>.bigbang = B</pre></div></div>
             
         </li>
         
@@ -101,7 +101,7 @@ U = <span class="hljs-keyword">this</span>._ || <span class="hljs-built_in">requ
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <h2 id="requestanimationframe-polyfill">requestAnimationFrame &amp; polyfill</h2>
+              <h2 id="requestanimationframe--polyfill">requestAnimationFrame &amp; polyfill</h2>
 
             </div>
             
@@ -132,14 +132,14 @@ U = <span class="hljs-keyword">this</span>._ || <span class="hljs-built_in">requ
             </div>
             
             <div class="content"><div class='highlight'><pre>B.polyRequestAnimationFrame = polyRequestAnimationFrame =       <span class="hljs-comment"># {{{1</span>
-  <span class="hljs-function"><span class="hljs-params">(opts = {})</span> -&gt;</span>
-    <span class="hljs-built_in">console</span>.warn <span class="hljs-string">'polyfilling *RequestAnimationFrame ...'</span> <span class="hljs-keyword">if</span> opts.warn
+  (opts = {}) -&gt;
+    <span class="hljs-built_in">console</span>.warn <span class="hljs-string">&#x27;polyfilling *RequestAnimationFrame ...&#x27;</span> <span class="hljs-keyword">if</span> opts.warn
     delay = opts.delay || <span class="hljs-number">17</span>; next = <span class="hljs-number">0</span>
-    <span class="hljs-function"><span class="hljs-params">(cb)</span> -&gt;</span>
-      cur   = +<span class="hljs-keyword">new</span> Date
-      dt    = Math.max <span class="hljs-number">0</span>, delay - (cur - next)
+    (cb) -&gt;
+      cur   = +<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>
+      dt    = <span class="hljs-built_in">Math</span>.max <span class="hljs-number">0</span>, delay - (cur - next)
       next  = cur + dt
-      <span class="hljs-built_in">window</span>.setTimeout (<span class="hljs-function">-&gt;</span> cb +<span class="hljs-keyword">new</span> Date), dt</pre></div></div>
+      <span class="hljs-built_in">window</span>.<span class="hljs-built_in">setTimeout</span> (<span class="hljs-function">-&gt;</span> cb +<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>), dt</pre></div></div>
             
         </li>
         
@@ -170,9 +170,10 @@ know: webkitRequestAnimationFrame uses floating point timestamps.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>B.requestAnimationFrame = requestAnimationFrame =
+  <span class="hljs-built_in">window</span>?.requestAnimationFrame ||
   <span class="hljs-built_in">window</span>?.webkitRequestAnimationFrame ||
   <span class="hljs-built_in">window</span>?.mozRequestAnimationFrame ||
-  polyRequestAnimationFrame <span class="hljs-attribute">warn</span>: <span class="hljs-literal">true</span></pre></div></div>
+  polyRequestAnimationFrame warn: <span class="hljs-literal">true</span></pre></div></div>
             
         </li>
         
@@ -183,7 +184,7 @@ know: webkitRequestAnimationFrame uses floating point timestamps.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
-              <h2 id="bigbang-stop_with">bigbang &amp; stop_with</h2>
+              <h2 id="bigbang--stop_with">bigbang &amp; stop_with</h2>
 
             </div>
             
@@ -213,27 +214,29 @@ know: webkitRequestAnimationFrame uses floating point timestamps.</p>
 <p>big bang: start a new universe whose behaviour is specified by the
 options and handler functions designated</p>
 <pre><code>bigbang
-  <span class="hljs-attribute">world</span>:        object,
-  <span class="hljs-attribute">canvas</span>:       element|object,
-  <span class="hljs-attribute">to_draw</span>:      <span class="hljs-function"><span class="hljs-params">((world) -&gt; scene)</span>,
-  <span class="hljs-title">on_tick</span>:      <span class="hljs-params">((world, time) -&gt; new_world)</span>,
-  <span class="hljs-title">fps</span>:          <span class="hljs-title">int</span>,
-  <span class="hljs-title">queue</span>:        <span class="hljs-title">boolean</span>|<span class="hljs-title">int</span>,
-  <span class="hljs-title">animate</span>:      <span class="hljs-title">requestAnimationFrame</span>-<span class="hljs-title">like</span>-<span class="hljs-title">function</span>,
-  <span class="hljs-title">on_key</span>:       <span class="hljs-params">((world, key) -&gt; new_world)</span>,
-  <span class="hljs-title">on_click</span>:     <span class="hljs-params">((world, x, y) -&gt; new_world)</span>,
-  <span class="hljs-title">on</span>:           { <span class="hljs-title">foo</span>: <span class="hljs-params">((world, ...) -&gt; new_world)</span>, ... },
-  <span class="hljs-title">stop_when</span>:    <span class="hljs-params">((world) -&gt; boolean)</span>,
-  <span class="hljs-title">last_draw</span>:    <span class="hljs-params">((world) -&gt; scene)</span>,
-  <span class="hljs-title">setup</span>:        <span class="hljs-params">((canvas, handlers) -&gt; setup_value)</span>,
-  <span class="hljs-title">teardown</span>:     <span class="hljs-params">((canvas, handlers, setup_value) -&gt;
-                  teardown_value)</span>,
-  <span class="hljs-title">on_stop</span>:      <span class="hljs-params">((world, teardown_value) -&gt; ...)</span>
--&gt;</span> {get_world,get_done}
-</code></pre><p>Options:</p>
+  world:        object,
+  canvas:       element|object,
+  to_draw:      <span class="hljs-function">(<span class="hljs-params">(world)</span> -&gt;</span> scene),
+  on_tick:      <span class="hljs-function">(<span class="hljs-params">(world, time)</span> -&gt;</span> new_world),
+  fps:          int,
+  queue:        boolean|int,
+  animate:      requestAnimationFrame-like-function,
+  on_key:       <span class="hljs-function">(<span class="hljs-params">(world, key)</span> -&gt;</span> new_world),
+  on_click:     <span class="hljs-function">(<span class="hljs-params">(world, x, y)</span> -&gt;</span> new_world),
+  on:           { foo: <span class="hljs-function">(<span class="hljs-params">(world, ...)</span> -&gt;</span> new_world), ... },
+  stop_when:    <span class="hljs-function">(<span class="hljs-params">(world)</span> -&gt;</span> boolean),
+  last_draw:    <span class="hljs-function">(<span class="hljs-params">(world)</span> -&gt;</span> scene),
+  setup:        <span class="hljs-function">(<span class="hljs-params">(canvas, handlers)</span> -&gt;</span> setup_value),
+  teardown:     <span class="hljs-function">(<span class="hljs-params">(canvas, handlers, setup_value)</span> -&gt;</span>
+                  teardown_value),
+  on_stop:      <span class="hljs-function">(<span class="hljs-params">(world, teardown_value)</span> -&gt;</span> ...)
+-&gt; {get_world,get_done}</code></pre>
+<p>Options:</p>
 <ul>
-<li><code>world</code> is the object representing the initial world</li>
-<li><code>canvas</code> is the HTML5 canvas (or equivalent) to draw on</li>
+<li><p><code>world</code> is the object representing the initial world</p>
+</li>
+<li><p><code>canvas</code> is the HTML5 canvas (or equivalent) to draw on</p>
+</li>
 <li><p><code>to_draw</code> is called every time a new world needs to be drawn</p>
 </li>
 <li><p>(optional) <code>on_tick</code></p>
@@ -246,33 +249,44 @@ every “virtual” clock tick (as determined by <code>fps</code>)</li>
 world and re-drawing the scene)</li>
 </ul>
 </li>
-<li>(optional) <code>fps</code> is the requested frame rate; defaults to 60</li>
-<li>(optional) <code>queue</code> when set to <code>false</code>, disables queueing in
+<li><p>(optional) <code>fps</code> is the requested frame rate; defaults to 60</p>
+</li>
+<li><p>(optional) <code>queue</code> when set to <code>false</code>, disables queueing in
 “clock mode”; when set to an <code>int</code>, restricts the queue size to
 that number of items (e.g. to draw every actual tick and ignore
-all but the last world, set this to <code>1</code>)</li>
-<li>(optional) <code>animate</code> the requestAnimationFrame-like function to
-use as the clock in “clock mode”</li>
-<li>(optional) <code>on_key</code> is called every time a key is pressed to
-update the world</li>
-<li>(optional) <code>on_click</code> is called every time the mouse is clicked
-inside the canvas to update the world</li>
-<li>(optional) <code>on</code> contains handlers for user-defined events;
+all but the last world, set this to <code>1</code>)</p>
+</li>
+<li><p>(optional) <code>animate</code> the requestAnimationFrame-like function to
+use as the clock in “clock mode”</p>
+</li>
+<li><p>(optional) <code>on_key</code> is called every time a key is pressed to
+update the world</p>
+</li>
+<li><p>(optional) <code>on_click</code> is called every time the mouse is clicked
+inside the canvas to update the world</p>
+</li>
+<li><p>(optional) <code>on</code> contains handlers for user-defined events;
 <code>setup</code> and <code>teardown</code> are used to connect handlers to elements
 and events; when the user-defined event is triggered, the
-appropriate function is called</li>
-<li>(optional) <code>stop_when</code> is called to determine if the universe
-needs to stop</li>
-<li>(optional) <code>last_draw</code> is called instead of <code>to_draw</code> to draw
-the last world</li>
-<li>(optional) <code>setup</code> is called before the universe starts; the
+appropriate function is called</p>
+</li>
+<li><p>(optional) <code>stop_when</code> is called to determine if the universe
+needs to stop</p>
+</li>
+<li><p>(optional) <code>last_draw</code> is called instead of <code>to_draw</code> to draw
+the last world</p>
+</li>
+<li><p>(optional) <code>setup</code> is called before the universe starts; the
 handlers are the internal event handlers for <code>on</code> which <code>setup</code>
-is expected to connect to the appropriate elements and events</li>
-<li>(optional) <code>teardown</code> is called after the universe has ended,
+is expected to connect to the appropriate elements and events</p>
+</li>
+<li><p>(optional) <code>teardown</code> is called after the universe has ended,
 before on_stop; the handlers are the same as passed to <code>setup</code>
-and can be used to cancel the event handling</li>
-<li>(optional) <code>on_stop</code> is called after the universe has ended,
-after teardown</li>
+and can be used to cancel the event handling</p>
+</li>
+<li><p>(optional) <code>on_stop</code> is called after the universe has ended,
+after teardown</p>
+</li>
 </ul>
 <p>Returns:</p>
 <ul>
@@ -296,7 +310,7 @@ option to a function with the same api as <code>handle_keys</code>.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>B.<span class="hljs-function"><span class="hljs-title">bigbang</span> = <span class="hljs-params">(opts)</span> -&gt;</span>                                           <span class="hljs-comment"># {{{1</span>
+            <div class="content"><div class='highlight'><pre>B.bigbang = <span class="hljs-function"><span class="hljs-params">(opts)</span> -&gt;</span>                                           <span class="hljs-comment"># {{{1</span>
   tickless      = !opts.on_tick
   queue         = opts.queue ? <span class="hljs-literal">true</span>
   anim          = opts.animate || requestAnimationFrame
@@ -304,23 +318,23 @@ option to a function with the same api as <code>handle_keys</code>.</p>
   delay         = <span class="hljs-number">1000</span> / (opts.fps || <span class="hljs-number">60</span>)
   delay_margin  = delay / <span class="hljs-number">17</span>                                    <span class="hljs-comment">#  ???</span>
   done          = opts.stop_when?(world) || <span class="hljs-literal">false</span>
-  next          = +<span class="hljs-keyword">new</span> Date + delay
+  next          = +<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span> + delay
   changes       = []
   setup_value   = <span class="hljs-literal">null</span>
 
   <span class="hljs-keyword">if</span> tickless &amp;&amp; (opts.queue? || opts.fps || opts.animate)
-    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error <span class="hljs-string">'queue, fps and animate require on_tick'</span>
-
-  <span class="hljs-function"><span class="hljs-title">draw</span> = <span class="hljs-params">(w,d)</span> -&gt;</span>
+    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span> <span class="hljs-string">&#x27;queue, fps and animate require on_tick&#x27;</span>
+<span class="hljs-function">
+  <span class="hljs-title">draw</span> = <span class="hljs-params">(w,d)</span> -&gt;</span>
     f = <span class="hljs-keyword">if</span> d &amp;&amp; opts.last_draw <span class="hljs-keyword">then</span> opts.last_draw <span class="hljs-keyword">else</span> opts.to_draw
     draw_scene(f w) opts.canvas
-
-  <span class="hljs-function"><span class="hljs-title">draw_changes</span> = -&gt;</span>
-    <span class="hljs-keyword">for</span> {<span class="hljs-attribute">world</span>:w,<span class="hljs-attribute">done</span>:d} <span class="hljs-keyword">in</span> changes
+<span class="hljs-function">
+  <span class="hljs-title">draw_changes</span> = -&gt;</span>
+    <span class="hljs-keyword">for</span> {world:w,done:d} <span class="hljs-keyword">in</span> changes
       draw w, d
     changes = []
-
-  <span class="hljs-function"><span class="hljs-title">change</span> = <span class="hljs-params">(f, args...)</span> -&gt;</span>
+<span class="hljs-function">
+  <span class="hljs-title">change</span> = <span class="hljs-params">(f, args...)</span> -&gt;</span>
     <span class="hljs-keyword">return</span> <span class="hljs-keyword">if</span> done || !U.isFunction f
     x = f world, args...
     <span class="hljs-keyword">if</span> x <span class="hljs-keyword">instanceof</span> _Stop
@@ -336,9 +350,9 @@ option to a function with the same api as <code>handle_keys</code>.</p>
       draw world, done
       finish() <span class="hljs-keyword">if</span> done
 
-  s = +<span class="hljs-keyword">new</span> Date
-
-  <span class="hljs-function"><span class="hljs-title">tick</span> = <span class="hljs-params">(t)</span> -&gt;</span>
+  s = +<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>
+<span class="hljs-function">
+  <span class="hljs-title">tick</span> = <span class="hljs-params">(t)</span> -&gt;</span>
     <span class="hljs-keyword">if</span> t &gt;= next - delay_margin
       next += delay; change opts.on_tick, t
     draw_changes() <span class="hljs-keyword">if</span> queue
@@ -346,15 +360,15 @@ option to a function with the same api as <code>handle_keys</code>.</p>
       finish() <span class="hljs-keyword">if</span> queue
     <span class="hljs-keyword">else</span>
       anim tick
-
-  <span class="hljs-function"><span class="hljs-title">key</span>   = <span class="hljs-params">(k)</span> -&gt;</span> change opts.on_key, k
-  <span class="hljs-function"><span class="hljs-title">click</span> = <span class="hljs-params">(x,y)</span> -&gt;</span> change opts.on_click, x, y
+<span class="hljs-function">
+  <span class="hljs-title">key</span>   = <span class="hljs-params">(k)</span> -&gt;</span> change opts.on_key, k
+<span class="hljs-function">  <span class="hljs-title">click</span> = <span class="hljs-params">(x,y)</span> -&gt;</span> change opts.on_click, x, y
 
   handlers = {}
   <span class="hljs-keyword">for</span> k, v <span class="hljs-keyword">of</span> opts.<span class="hljs-literal">on</span> || {}
-    <span class="hljs-keyword">do</span> <span class="hljs-function"><span class="hljs-params">(k,v)</span> -&gt;</span> handlers[k] = <span class="hljs-function"><span class="hljs-params">(args...)</span> -&gt;</span> change v, args...
-
-  <span class="hljs-function"><span class="hljs-title">finish</span> = -&gt;</span>
+    <span class="hljs-keyword">do</span> (k,v) -&gt; handlers[k] = <span class="hljs-function"><span class="hljs-params">(args...)</span> -&gt;</span> change v, args...
+<span class="hljs-function">
+  <span class="hljs-title">finish</span> = -&gt;</span>
     cancel_keys?(); cancel_click?()
     tv = opts.teardown? opts.canvas, handlers, setup_value
     opts.on_stop? world, tv
@@ -368,7 +382,7 @@ option to a function with the same api as <code>handle_keys</code>.</p>
   draw world, done
   anim tick <span class="hljs-keyword">unless</span> tickless
 
-  <span class="hljs-attribute">world</span>: (<span class="hljs-function">-&gt;</span> world), <span class="hljs-attribute">done</span>: (<span class="hljs-function">-&gt;</span> done)</pre></div></div>
+  world: (<span class="hljs-function">-&gt;</span> world), done: (<span class="hljs-function">-&gt;</span> done)</pre></div></div>
             
         </li>
         
@@ -396,7 +410,7 @@ option to a function with the same api as <code>handle_keys</code>.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>B.stop_with = <span class="hljs-function"><span class="hljs-title">stop_with</span> = <span class="hljs-params">(w)</span> -&gt;</span> <span class="hljs-keyword">new</span> _Stop w</pre></div></div>
+            <div class="content"><div class='highlight'><pre>B.stop_with = stop_with = <span class="hljs-function"><span class="hljs-params">(w)</span> -&gt;</span> <span class="hljs-keyword">new</span> _Stop w</pre></div></div>
             
         </li>
         
@@ -412,7 +426,7 @@ option to a function with the same api as <code>handle_keys</code>.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">_Stop</span></span>
-  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(<span class="hljs-property">@world</span>)</span> -&gt;</span>
+  constructor: <span class="hljs-function"><span class="hljs-params">(@world)</span> -&gt;</span>
 B._Stop = _Stop</pre></div></div>
             
         </li>
@@ -462,8 +476,8 @@ that draws the “lower scene” when needed.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>B.mk_scene = <span class="hljs-function"><span class="hljs-title">mk_scene</span> = <span class="hljs-params">(scene, f)</span> -&gt;</span>
-  <span class="hljs-function"><span class="hljs-title">g</span> = <span class="hljs-params">(canvas, draw_lower = <span class="hljs-literal">true</span>)</span> -&gt;</span> scene? canvas <span class="hljs-keyword">if</span> draw_lower; f canvas
+            <div class="content"><div class='highlight'><pre>B.mk_scene = mk_scene = <span class="hljs-function"><span class="hljs-params">(scene, f)</span> -&gt;</span>
+<span class="hljs-function">  <span class="hljs-title">g</span> = <span class="hljs-params">(canvas, draw_lower = <span class="hljs-literal">true</span>)</span> -&gt;</span> scene? canvas <span class="hljs-keyword">if</span> draw_lower; f canvas
   g.lower_scene = scene; g</pre></div></div>
             
         </li>
@@ -479,7 +493,7 @@ that draws the “lower scene” when needed.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>B.draw_scene = <span class="hljs-function"><span class="hljs-title">draw_scene</span> = <span class="hljs-params">(scene)</span> -&gt;</span> <span class="hljs-function"><span class="hljs-params">(canvas)</span> -&gt;</span>
+            <div class="content"><div class='highlight'><pre>B.draw_scene = draw_scene = <span class="hljs-function"><span class="hljs-params">(scene)</span> -&gt;</span> (canvas) -&gt;
   <span class="hljs-keyword">if</span> (s = scene).lower_scene
     scenes = [scene]; scenes.push s <span class="hljs-keyword">while</span> s = s.lower_scene
     scenes.reverse(); s canvas, <span class="hljs-literal">false</span> <span class="hljs-keyword">for</span> s <span class="hljs-keyword">in</span> scenes; <span class="hljs-literal">null</span>
@@ -524,7 +538,7 @@ that draws the “lower scene” when needed.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>B.empty_scene = <span class="hljs-function"><span class="hljs-title">empty_scene</span> = <span class="hljs-params">(width, height)</span> -&gt;</span> mk_scene <span class="hljs-literal">null</span>, <span class="hljs-function"><span class="hljs-params">(canvas)</span> -&gt;</span>
+            <div class="content"><div class='highlight'><pre>B.empty_scene = empty_scene = <span class="hljs-function"><span class="hljs-params">(width, height)</span> -&gt;</span> mk_scene <span class="hljs-literal">null</span>, <span class="hljs-function"><span class="hljs-params">(canvas)</span> -&gt;</span>
   canvas.width = width; canvas.height = height</pre></div></div>
             
         </li>
@@ -541,15 +555,15 @@ that draws the “lower scene” when needed.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>B.place_text = place_text =                                     <span class="hljs-comment"># {{{1</span>
-  <span class="hljs-function"><span class="hljs-params">(string, x, y, fontsize, colour, scene, $ = <span class="hljs-built_in">window</span>.$)</span> -&gt;</span> \
+  (string, x, y, fontsize, colour, scene, $ = <span class="hljs-built_in">window</span>.$) -&gt; \
   mk_scene scene, <span class="hljs-function"><span class="hljs-params">(canvas)</span> -&gt;</span>
-    ctx = canvas.getContext <span class="hljs-string">'2d'</span>
+    ctx = canvas.getContext <span class="hljs-string">&#x27;2d&#x27;</span>
     ctx.save()
-    ctx.font          = <span class="hljs-string">"<span class="hljs-subst">#{fontsize}</span> sans-serif"</span>
+    ctx.font          = <span class="hljs-string">&quot;<span class="hljs-subst">#{fontsize}</span> sans-serif&quot;</span>
     ctx.fillStyle     = colour
-    ctx.textBaseline  = <span class="hljs-string">'bottom'</span>
-    {w,h}             = measure_text $, string, fontsize, <span class="hljs-string">'sans-serif'</span>
-    ctx.fillText string, Math.round(x - w / <span class="hljs-number">2</span>), Math.round(y + h / <span class="hljs-number">2</span>)
+    ctx.textBaseline  = <span class="hljs-string">&#x27;bottom&#x27;</span>
+    {w,h}             = measure_text $, string, fontsize, <span class="hljs-string">&#x27;sans-serif&#x27;</span>
+    ctx.fillText string, <span class="hljs-built_in">Math</span>.round(x - w / <span class="hljs-number">2</span>), <span class="hljs-built_in">Math</span>.round(y + h / <span class="hljs-number">2</span>)
     ctx.restore()</pre></div></div>
             
         </li>
@@ -578,11 +592,11 @@ that draws the “lower scene” when needed.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>B.place_image = <span class="hljs-function"><span class="hljs-title">place_image</span> = <span class="hljs-params">(image, x, y, scene)</span> -&gt;</span>
+            <div class="content"><div class='highlight'><pre>B.place_image = place_image = <span class="hljs-function"><span class="hljs-params">(image, x, y, scene)</span> -&gt;</span>
   mk_scene scene, <span class="hljs-function"><span class="hljs-params">(canvas)</span> -&gt;</span>
-    ctx = canvas.getContext <span class="hljs-string">'2d'</span>
-    x_  = x - Math.round(image.width  / <span class="hljs-number">2</span>)
-    y_  = y - Math.round(image.height / <span class="hljs-number">2</span>)
+    ctx = canvas.getContext <span class="hljs-string">&#x27;2d&#x27;</span>
+    x_  = x - <span class="hljs-built_in">Math</span>.round(image.width  / <span class="hljs-number">2</span>)
+    y_  = y - <span class="hljs-built_in">Math</span>.round(image.height / <span class="hljs-number">2</span>)
     ctx.drawImage image, x_, y_</pre></div></div>
             
         </li>
@@ -649,16 +663,16 @@ chromium, for both US English and German keyboard layouts.  YMMV.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>B.handle_keys = <span class="hljs-function"><span class="hljs-title">handle_keys</span> = <span class="hljs-params">(elem, f, $ = <span class="hljs-built_in">window</span>.$)</span> -&gt;</span>        <span class="hljs-comment"># {{{1</span>
-  <span class="hljs-function"><span class="hljs-title">h</span> = <span class="hljs-params">(e)</span> -&gt;</span>
+            <div class="content"><div class='highlight'><pre>B.handle_keys = handle_keys = <span class="hljs-function"><span class="hljs-params">(elem, f, $ = <span class="hljs-built_in">window</span>.$)</span> -&gt;</span>        <span class="hljs-comment"># {{{1</span>
+<span class="hljs-function">  <span class="hljs-title">h</span> = <span class="hljs-params">(e)</span> -&gt;</span>
     <span class="hljs-keyword">if</span> !e.altKey &amp;&amp; !e.ctrlKey &amp;&amp; !e.metaKey &amp;&amp;
         e.which != keycodes.SHIFT
       k = key_to_string e.which, e.shiftKey; f k <span class="hljs-keyword">if</span> k
       k == <span class="hljs-literal">null</span>
     <span class="hljs-keyword">else</span>
       <span class="hljs-literal">true</span>
-  $(elem).<span class="hljs-literal">on</span> <span class="hljs-string">'keydown'</span>, h<span class="hljs-function">
-  -&gt;</span> $(elem).<span class="hljs-literal">off</span> <span class="hljs-string">'keydown'</span>, h</pre></div></div>
+  $(elem).<span class="hljs-literal">on</span> <span class="hljs-string">&#x27;keydown&#x27;</span>, h
+  -&gt; $(elem).<span class="hljs-literal">off</span> <span class="hljs-string">&#x27;keydown&#x27;</span>, h</pre></div></div>
             
         </li>
         
@@ -691,15 +705,15 @@ with shift (e.g. “HOME”).</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>B.key_to_string = <span class="hljs-function"><span class="hljs-title">key_to_string</span> = <span class="hljs-params">(which, shift)</span> -&gt;</span>             <span class="hljs-comment"># {{{1</span>
+            <div class="content"><div class='highlight'><pre>B.key_to_string = key_to_string = <span class="hljs-function"><span class="hljs-params">(which, shift)</span> -&gt;</span>             <span class="hljs-comment"># {{{1</span>
   w = which; s = shift
   <span class="hljs-keyword">switch</span>
-    <span class="hljs-keyword">when</span> keyranges.ALPHA.from &lt;= w &lt;= keyranges.ALPHA.to
-      c = String.fromCharCode w
+    <span class="hljs-keyword">when</span> keyranges.ALPHA.<span class="hljs-keyword">from</span> &lt;= w &lt;= keyranges.ALPHA.to
+      c = <span class="hljs-built_in">String</span>.fromCharCode w
       <span class="hljs-keyword">if</span> s <span class="hljs-keyword">then</span> c <span class="hljs-keyword">else</span> c.toLowerCase()
-    <span class="hljs-keyword">when</span> keyranges.NUM.from &lt;= w &lt;= keyranges.NUM.to
-      c = String.fromCharCode w
-      <span class="hljs-keyword">if</span> s <span class="hljs-keyword">then</span> <span class="hljs-string">"SHIFT_<span class="hljs-subst">#{c}</span>"</span> <span class="hljs-keyword">else</span> c
+    <span class="hljs-keyword">when</span> keyranges.NUM.<span class="hljs-keyword">from</span> &lt;= w &lt;= keyranges.NUM.to
+      c = <span class="hljs-built_in">String</span>.fromCharCode w
+      <span class="hljs-keyword">if</span> s <span class="hljs-keyword">then</span> <span class="hljs-string">&quot;SHIFT_<span class="hljs-subst">#{c}</span>&quot;</span> <span class="hljs-keyword">else</span> c
     <span class="hljs-keyword">else</span>
       <span class="hljs-keyword">for</span> k, v <span class="hljs-keyword">of</span> keycodes
         <span class="hljs-keyword">if</span> v == w
@@ -733,9 +747,9 @@ with shift (e.g. “HOME”).</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>B.keycodes = keycodes =
-  <span class="hljs-attribute">BACKSPACE</span>: <span class="hljs-number">8</span>, <span class="hljs-attribute">COMMA</span>: <span class="hljs-number">188</span>, <span class="hljs-attribute">DELETE</span>: <span class="hljs-number">46</span>, <span class="hljs-attribute">DOWN</span>: <span class="hljs-number">40</span>, <span class="hljs-attribute">END</span>: <span class="hljs-number">35</span>, <span class="hljs-attribute">ENTER</span>: <span class="hljs-number">13</span>,
-  <span class="hljs-attribute">ESCAPE</span>: <span class="hljs-number">27</span>, <span class="hljs-attribute">HOME</span>: <span class="hljs-number">36</span>, <span class="hljs-attribute">LEFT</span>: <span class="hljs-number">37</span>, <span class="hljs-attribute">PAGE_DOWN</span>: <span class="hljs-number">34</span>, <span class="hljs-attribute">PAGE_UP</span>: <span class="hljs-number">33</span>,
-  <span class="hljs-attribute">PERIOD</span>: <span class="hljs-number">190</span>, <span class="hljs-attribute">RIGHT</span>: <span class="hljs-number">39</span>, <span class="hljs-attribute">SHIFT</span>: <span class="hljs-number">16</span>, <span class="hljs-attribute">SPACE</span>: <span class="hljs-number">32</span>, <span class="hljs-attribute">TAB</span>: <span class="hljs-number">9</span>, <span class="hljs-attribute">UP</span>: <span class="hljs-number">38</span></pre></div></div>
+  BACKSPACE: <span class="hljs-number">8</span>, COMMA: <span class="hljs-number">188</span>, DELETE: <span class="hljs-number">46</span>, DOWN: <span class="hljs-number">40</span>, END: <span class="hljs-number">35</span>, ENTER: <span class="hljs-number">13</span>,
+  ESCAPE: <span class="hljs-number">27</span>, HOME: <span class="hljs-number">36</span>, LEFT: <span class="hljs-number">37</span>, PAGE_DOWN: <span class="hljs-number">34</span>, PAGE_UP: <span class="hljs-number">33</span>,
+  PERIOD: <span class="hljs-number">190</span>, RIGHT: <span class="hljs-number">39</span>, SHIFT: <span class="hljs-number">16</span>, SPACE: <span class="hljs-number">32</span>, TAB: <span class="hljs-number">9</span>, UP: <span class="hljs-number">38</span></pre></div></div>
             
         </li>
         
@@ -751,7 +765,7 @@ with shift (e.g. “HOME”).</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>B.keyranges = keyranges =
-  <span class="hljs-attribute">ALPHA</span>: { <span class="hljs-attribute">from</span>: <span class="hljs-number">65</span>, <span class="hljs-attribute">to</span>: <span class="hljs-number">90</span> }, <span class="hljs-attribute">NUM</span>: { <span class="hljs-attribute">from</span>: <span class="hljs-number">48</span>, <span class="hljs-attribute">to</span>: <span class="hljs-number">57</span> }, <span class="hljs-comment"># ...</span></pre></div></div>
+  ALPHA: { from: <span class="hljs-number">65</span>, to: <span class="hljs-number">90</span> }, NUM: { from: <span class="hljs-number">48</span>, to: <span class="hljs-number">57</span> }, <span class="hljs-comment"># ...</span></pre></div></div>
             
         </li>
         
@@ -792,10 +806,10 @@ with shift (e.g. “HOME”).</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>B.handle_click = <span class="hljs-function"><span class="hljs-title">handle_click</span> = <span class="hljs-params">(elem, f, $ = <span class="hljs-built_in">window</span>.$)</span> -&gt;</span>
-  <span class="hljs-function"><span class="hljs-title">h</span> = <span class="hljs-params">(e)</span> -&gt;</span> {x,y} = mouse_position e; f x, y; <span class="hljs-literal">false</span>
-  $(elem).<span class="hljs-literal">on</span> <span class="hljs-string">'click'</span>, h<span class="hljs-function">
-  -&gt;</span> $(elem).<span class="hljs-literal">off</span> <span class="hljs-string">'click'</span>, h</pre></div></div>
+            <div class="content"><div class='highlight'><pre>B.handle_click = handle_click = <span class="hljs-function"><span class="hljs-params">(elem, f, $ = <span class="hljs-built_in">window</span>.$)</span> -&gt;</span>
+<span class="hljs-function">  <span class="hljs-title">h</span> = <span class="hljs-params">(e)</span> -&gt;</span> {x,y} = mouse_position e; f x, y; <span class="hljs-literal">false</span>
+  $(elem).<span class="hljs-literal">on</span> <span class="hljs-string">&#x27;click&#x27;</span>, h
+  -&gt; $(elem).<span class="hljs-literal">off</span> <span class="hljs-string">&#x27;click&#x27;</span>, h</pre></div></div>
             
         </li>
         
@@ -810,12 +824,12 @@ with shift (e.g. “HOME”).</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>B.mouse_position = <span class="hljs-function"><span class="hljs-title">mouse_position</span> =
-  <span class="hljs-params">(event, elem = event.target, $ = <span class="hljs-built_in">window</span>.$, cache = {})</span> -&gt;</span>
+            <div class="content"><div class='highlight'><pre>B.mouse_position = mouse_position =
+  <span class="hljs-function"><span class="hljs-params">(event, elem = event.target, $ = <span class="hljs-built_in">window</span>.$, cache = {})</span> -&gt;</span>
     e            = $(elem)
     cache.left  ?= (e.outerWidth()  - e.width() ) / <span class="hljs-number">2</span>
     cache.top   ?= (e.outerHeight() - e.height()) / <span class="hljs-number">2</span>
-    <span class="hljs-attribute">x</span>: event.offsetX - cache.left, <span class="hljs-attribute">y</span>: event.offsetY - cache.top</pre></div></div>
+    x: event.offsetX - cache.left, y: event.offsetY - cache.top</pre></div></div>
             
         </li>
         
@@ -856,15 +870,15 @@ returns {w:width,h:height}</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>B.measure_text = <span class="hljs-function"><span class="hljs-title">measure_text</span> = <span class="hljs-params">($, text, size, family)</span> -&gt;</span>      <span class="hljs-comment"># {{{1</span>
-  c = measure_text.cache[<span class="hljs-string">"<span class="hljs-subst">#{size}</span>|<span class="hljs-subst">#{family}</span>|<span class="hljs-subst">#{text}</span>"</span>]
+            <div class="content"><div class='highlight'><pre>B.measure_text = measure_text = <span class="hljs-function"><span class="hljs-params">($, text, size, family)</span> -&gt;</span>      <span class="hljs-comment"># {{{1</span>
+  c = measure_text.cache[<span class="hljs-string">&quot;<span class="hljs-subst">#{size}</span>|<span class="hljs-subst">#{family}</span>|<span class="hljs-subst">#{text}</span>&quot;</span>]
   <span class="hljs-keyword">return</span> c <span class="hljs-keyword">if</span> c
-  d = $ <span class="hljs-string">'&lt;div&gt;'</span>; d.text text
-  d.css <span class="hljs-attribute">display</span>: <span class="hljs-string">'none'</span>, <span class="hljs-string">'font-size'</span>: size, <span class="hljs-string">'font-family'</span>: family
-  $(<span class="hljs-string">'body'</span>).append d
+  d = $ <span class="hljs-string">&#x27;&lt;div&gt;&#x27;</span>; d.text text
+  d.css display: <span class="hljs-string">&#x27;none&#x27;</span>, <span class="hljs-string">&#x27;font-size&#x27;</span>: size, <span class="hljs-string">&#x27;font-family&#x27;</span>: family
+  $(<span class="hljs-string">&#x27;body&#x27;</span>).append d
   w = d.width(); h = d.height()
   d.remove()
-  measure_text.cache[<span class="hljs-string">"<span class="hljs-subst">#{size}</span>|<span class="hljs-subst">#{family}</span>|<span class="hljs-subst">#{text}</span>"</span>] = {w,h}
+  measure_text.cache[<span class="hljs-string">&quot;<span class="hljs-subst">#{size}</span>|<span class="hljs-subst">#{family}</span>|<span class="hljs-subst">#{text}</span>&quot;</span>] = {w,h}
 measure_text.cache = {}</pre></div></div>
             
         </li>
